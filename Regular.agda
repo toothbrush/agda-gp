@@ -35,13 +35,13 @@ data K (a r : Set) : Set where
 list_f' : Set -> (Set -> Set)
 list_f' a = U ⊎ K a × I
 
+{-
 fix-aux : {a b : Set} (k : a -> b ⊥) (f : (a -> b ⊥) -> a -> b ⊥) -> a -> b ⊥
 fix-aux k f a with f k a
 ... | now x = now x
 ... | later x = later (♯ fix-aux (f k) f a)
 
 
-{-
 Fix : (x : Set -> Set) -> Set
 Fix x = x (Fix x)
 
