@@ -1,0 +1,15 @@
+attempts:
+
+- tried to give a spine representation of spine, but later realised that sum is
+  achieved by a list of Sigs in spine.
+- attempting to convert a [Sig] into LIGD representation. Possibly generating the EP.
+- defining spine and ligd in agda. not very interesting, but something time was spent on.
+
+
+
+
+
+TODO:
+
+- write about ligd and spine: comparison / similarities and possible translation
+- why is spine supposedly bigger than ligd?
