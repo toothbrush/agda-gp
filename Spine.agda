@@ -60,12 +60,14 @@ f (ListR {a} y) = U ⊕ (K a ⊗ I)
 --F {a : Set} -> t : Type a -> EP a (el (f t))  
 
 Nat = μ (f NatR)
-ListN = μ (f (ListR NatR)) 
 
-nil : ListN
+ListC : {a : Set} -> Type a -> Set
+ListC a = μ (f (ListR a)) 
+
+nil : {A : Set}{a : Type A} -> ListC a
 nil = < inj₁ tt >
 
-cons : ℕ -> ListN -> ListN
+cons : {A : Set}{a : Type A} -> A -> ListC a -> ListC a
 cons x xs = < inj₂ (x , xs) >  
 
 from : {A : Set} -> (ta : Type A) -> (t : A) -> μ (f ta)
@@ -76,4 +78,10 @@ from BoolR false = < inj₂ tt >
 from (ListR y) [] = < inj₁ tt >
 from (ListR y) (x ∷ xs) = < inj₂ (x , from (ListR y) xs) >
 
---proof : (t : Type a) -> a = fix (el (f t))
+to : {A : Set} -> (ta : Type A) -> μ (f ta) -> A 
+to NatR < inj₁ tt > = zero
+to NatR < inj₂ n > = suc (to NatR n)
+to BoolR < inj₁ tt > = true
+to BoolR < inj₂ tt > = false
+to (ListR y) < inj₁ tt > = []
+to (ListR y) < inj₂ (x , xs) > = x ∷ to (ListR y) xs
