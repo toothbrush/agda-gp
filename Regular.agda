@@ -2,32 +2,27 @@
 
 module Regular where
 
+open import Data.Unit
+open import Data.Sum
+open import Data.Product
 open import Coinduction
 open import Category.Monad.Partiality
 
--- Sum
-data _+_ (A B : Set → Set) (r : Set) : Set where 
-  inl : A r → (A + B) r
-  inr : B r → (A + B) r
+data C : Set where
+  U : C
+  K : Set -> C
+  I : C
+  _⊕_ : C -> C -> C
+  _⊗_ : C -> C -> C
 
-infixr 5 _+_
+el : C -> Set -> Set
+el U _ = ⊤
+el (K a) r = a
+el I r = r
+el (c1 ⊕ c2) r = el c1 r ⊎ el c2 r
+el (c1 ⊗ c2) r = el c1 r × el c2 r
 
--- Product
-data _×_ (A B : Set → Set) (r : Set) : Set where
-  _,_ : A r → B r → (A × B) r
-
-infixr 6 _×_
-infixr 6 _,_
-
-data U (r : Set) : Set where
-  u : U r
-
-data I (r : Set) : Set where
-  i : r → I r
-
-data K (a r : Set) : Set where
-  k : a → K a r
-
+{-
 data List_F (a r : Set) : Set where
   nil_f : List_F a r
   cons_f : a → r → List_F a r
@@ -37,7 +32,7 @@ list_f' a = U + K a × I
 
 data Fix (f : Set → Set) : Set where
   fin : f (Fix f) → Fix f
-
+-}
 
 {-
 fix-aux : {a b : Set} (k : a → b ⊥) (f : (a → b ⊥) → a → b ⊥) → a → b ⊥
