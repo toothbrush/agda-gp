@@ -14,6 +14,7 @@ open import Relation.Binary.Core public using (_≡_; refl)
 
 open import Regular
 open import Spine
+open import Util
 
 regRep : {a : Set} -> Type a -> C
 regRep NatR = U ⊕ I
@@ -58,20 +59,17 @@ record IsoProof (A : Set) : Set where
     invProofA : (x : A) -> toA (fromA x) ≡ x
     invProofRepA : (y : μ (regRep typeRep)) -> fromA (toA y) ≡ y
 
-cong : {X Y : Set} {x : X} -> (f : X -> Y) -> x ≡ x -> (f x) ≡ (f x)
-cong f proof = refl
-
 invNat : (x : ℕ) -> to NatR (from NatR x) ≡ x
 invNat zero = refl
 invNat (suc n) = cong suc (invNat n)
 
 invRepNat : (y : μ (regRep NatR)) -> from NatR (to NatR y) ≡ y
 invRepNat < inj₁ tt > = refl
-invRepNat < inj₂ n > = refl
+invRepNat < inj₂ n > = cong (λ n -> < inj₂ n >) (invRepNat n)
 
 natIso : IsoProof ℕ
 natIso = record {typeRep = NatR;
                  fromA = from NatR;
                  toA = to NatR;
                  invProofA = invNat;
-                 invRepA = invRepNat}
+                 invProofRepA = invRepNat}
