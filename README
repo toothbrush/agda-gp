@@ -5,7 +5,8 @@ attempts:
 - attempting to convert a [Sig] into LIGD representation. Possibly generating the EP.
 - defining spine and ligd in agda. not very interesting, but something time was spent on.
 
-
+- spine == sum of products, except for existential types. 
+- by converting to regular / ligd you lose information, since spine keeps track of the constructors
 
 
 
