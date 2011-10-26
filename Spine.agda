@@ -3,12 +3,17 @@
 module Spine where
 
 open import Data.Nat
+open import Data.Maybe
 open import Data.List 
 open import Data.Bool
+
 open import Data.Product
 open import Data.Unit
 open import Data.Sum
+
 open import Relation.Binary.Core public using (_≡_; refl)
+
+open import Util
 
 data Type : Set -> Set where
   NatR : Type ℕ
@@ -44,3 +49,11 @@ raw : {a : Set} -> Type a -> Set
 raw NatR = ℕ
 raw BoolR = Bool
 raw (ListR y) = List (raw y)
+
+tEQ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
+tEQ NatR NatR = just refl
+tEQ BoolR BoolR = just refl
+tEQ (ListR A) (ListR B) with tEQ A B
+... | nothing = nothing
+... | just refl = just refl
+tEQ _ _ = nothing
