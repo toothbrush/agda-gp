@@ -46,20 +46,34 @@ raw NatR = ℕ
 raw BoolR = Bool
 raw (ListR y) = List (raw y)
 
+data μ_ (c : C) : Set where
+  <_> : el c  (μ c) → μ c
+
+infix 1 <_>
+
 --replace f with 
-goal : {a : Set} -> t : Type a -> C 
 f : {a : Set} -> Type a -> C 
 f NatR = U ⊕ I
 f BoolR = U ⊕ U
-f (ListR y) = U ⊕ (K (raw y) ⊗ I)
+f (ListR {a} y) = U ⊕ (K a ⊗ I)
 
 --F {a : Set} -> t : Type a -> EP a (el (f t))  
 
-from : {A : Set} -> (ta : Type A) -> (t : A) -> (el (f ta) )
-from NatR zero = inj₁ ⊤
-from NatR (suc x) = inj₂ (from NatR x)
-from BoolR true = inj₁ ⊤
-from BoolR false = inj₂ ⊤
---from ListR [] 
+Nat = μ (f NatR)
+ListN = μ (f (ListR NatR)) 
 
-proof : (t : Type a) -> a = fix (el (f t))
+nil : ListN
+nil = < inj₁ tt >
+
+cons : ℕ -> ListN -> ListN
+cons x xs = < inj₂ (x , xs) >  
+
+from : {A : Set} -> (ta : Type A) -> (t : A) -> μ (f ta)
+from NatR zero = < inj₁ tt >
+from NatR (suc n) = < inj₂ (from NatR n) >
+from BoolR true = < inj₁ tt >
+from BoolR false = < inj₂ tt >
+from (ListR y) [] = < inj₁ tt >
+from (ListR y) (x ∷ xs) = < inj₂ (x , from (ListR y) xs) >
+
+--proof : (t : Type a) -> a = fix (el (f t))

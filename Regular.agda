@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Regular where
 
 open import Data.Unit
@@ -8,7 +6,7 @@ open import Data.Product
 open import Coinduction
 open import Category.Monad.Partiality
 
-data C : Set where
+data C : Set₁ where
   U : C
   K : Set -> C
   I : C
@@ -17,7 +15,7 @@ data C : Set where
 
 el : C -> Set -> Set
 el U _ = ⊤
-el (K a) r = a
+el (K a) _ = a
 el I r = r
 el (c1 ⊕ c2) r = el c1 r ⊎ el c2 r
 el (c1 ⊗ c2) r = el c1 r × el c2 r
