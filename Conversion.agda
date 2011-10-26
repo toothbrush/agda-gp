@@ -5,6 +5,7 @@ module Conversion where
 open import Data.Nat
 open import Data.List
 open import Data.Bool
+open import Data.Maybe
 
 open import Data.Product
 open import Data.Unit
@@ -20,6 +21,7 @@ regRep : {a : Set} → Type a → C
 regRep NatR = U ⊕ I
 regRep BoolR = U ⊕ U
 regRep (ListR {a} y) = U ⊕ (K a ⊗ I)
+regRep (TreeR {a} y) = K a ⊕ (I ⊗ I)
 
 data μ_ (c : C) : Set where
   <_> : el c (μ c) → μ c
@@ -42,6 +44,8 @@ from BoolR true = < inj₁ tt >
 from BoolR false = < inj₂ tt >
 from (ListR y) [] = < inj₁ tt >
 from (ListR y) (x ∷ xs) = < inj₂ (x , from (ListR y) xs) >
+from (TreeR y) (Leaf y') = < (inj₁ y') >
+from (TreeR y) (Node l r) = < (inj₂ (from (TreeR y) l , from (TreeR y) r)) >
 
 to : {A : Set} → (ta : Type A) → μ (regRep ta) → A 
 to NatR < inj₁ tt > = zero
@@ -50,6 +54,8 @@ to BoolR < inj₁ tt > = true
 to BoolR < inj₂ tt > = false
 to (ListR y) < inj₁ tt > = []
 to (ListR y) < inj₂ (x , xs) > = x ∷ to (ListR y) xs
+to (TreeR y) < inj₁ x > = Leaf x
+to (TreeR y) < inj₂ (l , r) > = Node (to (TreeR y) l) (to (TreeR y) r)
 
 record IsoProof (A : Set) : Set where
   field
@@ -103,3 +109,22 @@ listIso TA = record {typeRep = ListR TA;
                      toA = to (ListR TA);
                      invProofA = invList TA;
                      invProofRepA = invRepList TA}
+
+makeProd : {A B : Set} → Type A → Signature B → C
+makeProd TA (Sig y) = U
+makeProd TA (Sig y · y') with tEQ TA y'
+... | nothing = K (raw y')
+... | just refl = I
+makeProd TA (y · y') with tEQ TA y'
+... | nothing = makeProd TA y ⊗ K (raw y')
+... | just refl = makeProd TA y ⊗ I
+
+makeSum : {A : Set} → Type A → List (Signature A) → Maybe C
+makeSum TA [] = nothing
+makeSum TA (x ∷ []) = just (makeProd TA x)
+makeSum TA (x' ∷ xs) with makeSum TA xs
+... | nothing = nothing
+... | just sum = just (makeProd TA x' ⊕ sum)
+
+finalRep : {A : Set} → Type A → Maybe C
+finalRep TA = makeSum TA (datatype TA)

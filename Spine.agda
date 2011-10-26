@@ -19,6 +19,7 @@ data Type : Set -> Set where
   NatR : Type ℕ
   BoolR : Type Bool
   ListR : {a : Set} -> Type a -> Type (List a)
+  TreeR : {a : Set} -> Type a -> Type (Tree a)
  
 data Typed (a : Set) : Set where
   _:>_ : Type a -> a -> Typed a
@@ -33,13 +34,11 @@ data Signature a : Set where
 
 infixl 0 _·_
 
--- allNats : ℕ -> List (Signature ℕ)
--- allNats x = Sig x ∷ allNats (suc x)
-
 datatype : {a : Set} -> Type a -> List (Signature a)
 datatype BoolR = Sig false ∷ Sig true ∷ []
-datatype NatR  = Sig zero ∷ Sig (suc zero) ∷ []
-datatype (ListR a) = (Sig (_∷_) · a · ListR a) ∷ []
+datatype NatR  = Sig zero ∷ (Sig suc · NatR) ∷ []
+datatype (ListR a) = (Sig []) ∷ (Sig (_∷_) · a · ListR a) ∷ []
+datatype (TreeR a) = (Sig Leaf · a) ∷ (Sig Node · TreeR a · TreeR a) ∷ []
 
 fromSpine : {a : Set} -> Spine a -> a
 fromSpine (Con c) = c
@@ -49,11 +48,15 @@ raw : {a : Set} -> Type a -> Set
 raw NatR = ℕ
 raw BoolR = Bool
 raw (ListR y) = List (raw y)
+raw (TreeR y) = Tree (raw y)
 
 tEQ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
 tEQ NatR NatR = just refl
 tEQ BoolR BoolR = just refl
 tEQ (ListR A) (ListR B) with tEQ A B
+... | nothing = nothing
+... | just refl = just refl
+tEQ (TreeR A) (TreeR B) with tEQ A B
 ... | nothing = nothing
 ... | just refl = just refl
 tEQ _ _ = nothing
