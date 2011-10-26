@@ -57,59 +57,6 @@ to (ListR y) < inj₂ (x , xs) > = x ∷ to (ListR y) xs
 to (TreeR y) < inj₁ x > = Leaf x
 to (TreeR y) < inj₂ (l , r) > = Node (to (TreeR y) l) (to (TreeR y) r)
 
-record IsoProof (A : Set) : Set where
-  field
-    typeRep : Type A
-    fromA : A → μ (regRep typeRep)
-    toA : μ (regRep typeRep) → A
-    invProofA : (x : A) → toA (fromA x) ≡ x
-    invProofRepA : (y : μ (regRep typeRep)) → fromA (toA y) ≡ y
-
-invNat : (x : ℕ) → to NatR (from NatR x) ≡ x
-invNat zero = refl
-invNat (suc n) = cong suc (invNat n)
-
-invRepNat : (y : μ (regRep NatR)) → from NatR (to NatR y) ≡ y
-invRepNat < inj₁ tt > = refl
-invRepNat < inj₂ n > = cong (λ n → < inj₂ n >) (invRepNat n)
-
-natIso : IsoProof ℕ
-natIso = record {typeRep = NatR;
-                 fromA = from NatR;
-                 toA = to NatR;
-                 invProofA = invNat;
-                 invProofRepA = invRepNat}
-
-invBool : (x : Bool) → to BoolR (from BoolR x) ≡ x
-invBool false = refl
-invBool true = refl
-
-invRepBool : (y : μ (regRep BoolR)) → from BoolR (to BoolR y) ≡ y
-invRepBool < inj₁ tt > = refl
-invRepBool < inj₂ tt > = refl
-
-boolIso : IsoProof Bool
-boolIso = record {typeRep = BoolR;
-                  fromA = from BoolR;
-                  toA = to BoolR;
-                  invProofA = invBool;
-                  invProofRepA = invRepBool}
-
-invList : {A : Set} → (TA : Type A) → (x : List A) → to (ListR TA) (from (ListR TA) x) ≡ x
-invList TA [] = refl
-invList TA (x ∷ xs) = cong (λ xs → x ∷ xs) (invList TA xs)
-
-invRepList : {A : Set} → (TA : Type A) → (y : μ (regRep (ListR TA))) → from (ListR TA) (to (ListR TA) y) ≡ y
-invRepList TA < inj₁ tt > = refl
-invRepList TA < inj₂ (x , xs) > = cong (λ xs → < inj₂ (x , xs) >) (invRepList TA xs)
-
-listIso : {A : Set} → Type A → IsoProof (List A)
-listIso TA = record {typeRep = ListR TA;
-                     fromA = from (ListR TA);
-                     toA = to (ListR TA);
-                     invProofA = invList TA;
-                     invProofRepA = invRepList TA}
-
 makeProd : {A B : Set} → Type A → Signature B → C
 makeProd TA (Sig y) = U
 makeProd TA (Sig y · y') with tEQ TA y'
@@ -128,3 +75,64 @@ makeSum TA (x' ∷ xs) with makeSum TA xs
 
 finalRep : {A : Set} → Type A → Maybe C
 finalRep TA = makeSum TA (datatype TA)
+
+record IsoProof (A : Set) : Set where
+  field
+    typeRep : Type A
+    repProof : isJust (finalRep typeRep) ≡ true
+    fromA : A → μ (fromJust (finalRep typeRep) repProof)
+    toA : μ (fromJust (finalRep typeRep) repProof) → A
+    invProofA : (x : A) → toA (fromA x) ≡ x
+    invProofRepA : (y : μ (fromJust (finalRep typeRep) repProof)) → fromA (toA y) ≡ y
+
+invNat : (x : ℕ) → to NatR (from NatR x) ≡ x
+invNat zero = refl
+invNat (suc n) = cong suc (invNat n)
+
+invRepNat : (y : μ (regRep NatR)) → from NatR (to NatR y) ≡ y
+invRepNat < inj₁ tt > = refl
+invRepNat < inj₂ n > = cong (λ n → < inj₂ n >) (invRepNat n)
+
+natIso : IsoProof ℕ
+natIso = record {typeRep = NatR;
+                 repProof = refl;
+                 fromA = from NatR;
+                 toA = to NatR;
+                 invProofA = invNat;
+                 invProofRepA = invRepNat}
+
+invBool : (x : Bool) → to BoolR (from BoolR x) ≡ x
+invBool false = refl
+invBool true = refl
+
+invRepBool : (y : μ (regRep BoolR)) → from BoolR (to BoolR y) ≡ y
+invRepBool < inj₁ tt > = refl
+invRepBool < inj₂ tt > = refl
+
+boolIso : IsoProof Bool
+boolIso = record {typeRep = BoolR;
+                  repProof = refl;
+                  fromA = from BoolR;
+                  toA = to BoolR;
+                  invProofA = invBool;
+                  invProofRepA = invRepBool}
+
+invList : {A : Set} → (TA : Type A) → (x : List A) → to (ListR TA) (from (ListR TA) x) ≡ x
+invList TA [] = refl
+invList TA (x ∷ xs) = cong (λ xs → x ∷ xs) (invList TA xs)
+
+invRepList : {A : Set} → (TA : Type A) → (y : μ (regRep (ListR TA))) → from (ListR TA) (to (ListR TA) y) ≡ y
+invRepList TA < inj₁ tt > = refl
+invRepList TA < inj₂ (x , xs) > = cong (λ xs → < inj₂ (x , xs) >) (invRepList TA xs)
+
+testProof : {A : Set} -> (TA : Type A) -> isJust (finalRep (ListR TA)) ≡ true
+testProof TA = refl
+
+listIso : {A : Set} → Type A → IsoProof (List A)
+listIso TA = record {typeRep = ListR TA;
+                     repProof = refl;
+                     fromA = from (ListR TA);
+                     toA = to (ListR TA);
+                     invProofA = invList TA;
+                     invProofRepA = invRepList TA}
+
