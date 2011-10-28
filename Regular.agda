@@ -10,12 +10,12 @@ open import Category.Monad.Partiality
 
 data C : Set where
   U : C
-  K : Set -> C
+  K : Set → C
   I : C
-  _⊕_ : C -> C -> C
-  _⊗_ : C -> C -> C
+  _⊕_ : C → C → C
+  _⊗_ : C → C → C
 
-el : C -> Set -> Set
+el : C → Set → Set
 el U _ = ⊤
 el (K a) _ = a
 el I r = r

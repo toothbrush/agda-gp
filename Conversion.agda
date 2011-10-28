@@ -17,45 +17,8 @@ open import Regular
 open import Spine
 open import Util
 
-regRep : {a : Set} → Type a → C
-regRep NatR = U ⊕ I
-regRep BoolR = U ⊕ U
-regRep (ListR {a} y) = U ⊕ (K a ⊗ I)
-regRep (TreeR {a} y) = K a ⊕ (I ⊗ I)
-
 data μ_ (c : C) : Set where
   <_> : el c (μ c) → μ c
-
-Nat = μ (regRep NatR)
-
-ListC : {a : Set} → Type a → Set
-ListC a = μ (regRep (ListR a)) 
-
-nil : {A : Set} {a : Type A} → ListC a
-nil = < inj₁ tt >
-
-cons : {A : Set} {a : Type A} → A → ListC a → ListC a
-cons x xs = < inj₂ (x , xs) >  
-
-from : {A : Set} → (TA : Type A) → A → μ (regRep TA)
-from NatR zero = < inj₁ tt >
-from NatR (suc n) = < inj₂ (from NatR n) >
-from BoolR true = < inj₁ tt >
-from BoolR false = < inj₂ tt >
-from (ListR y) [] = < inj₁ tt >
-from (ListR y) (x ∷ xs) = < inj₂ (x , from (ListR y) xs) >
-from (TreeR y) (Leaf y') = < (inj₁ y') >
-from (TreeR y) (Node l r) = < (inj₂ (from (TreeR y) l , from (TreeR y) r)) >
-
-to : {A : Set} → (ta : Type A) → μ (regRep ta) → A 
-to NatR < inj₁ tt > = zero
-to NatR < inj₂ n > = suc (to NatR n)
-to BoolR < inj₁ tt > = true
-to BoolR < inj₂ tt > = false
-to (ListR y) < inj₁ tt > = []
-to (ListR y) < inj₂ (x , xs) > = x ∷ to (ListR y) xs
-to (TreeR y) < inj₁ x > = Leaf x
-to (TreeR y) < inj₂ (l , r) > = Node (to (TreeR y) l) (to (TreeR y) r)
 
 makeProd : {A B : Set} → Type A → Signature B → C
 makeProd TA (Sig y) = U
@@ -76,63 +39,106 @@ makeSum TA (x' ∷ xs) with makeSum TA xs
 finalRep : {A : Set} → Type A → Maybe C
 finalRep TA = makeSum TA (datatype TA)
 
+μType : {A : Set} → (TA : Type A) → isJust (finalRep TA) ≡ true → Set
+μType TA proof = μ (fromJust (finalRep TA) proof)
+
+to : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → μType TA proof → A 
+to NatR refl < inj₁ tt > = zero
+to NatR refl < inj₂ n > = suc (to NatR refl n)
+to BoolR refl < inj₁ tt > = true
+to BoolR refl < inj₂ tt > = false
+to (ListR y) refl < inj₁ tt > = []
+to (ListR y) refl < inj₂ (x , xs) > = {!!}
+to (TreeR y) refl < inj₁ x > = {!x!}
+to (TreeR y) refl < inj₂ (l , r) > = {!!}
+
+from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
+from NatR refl zero = < inj₁ tt >
+from NatR refl (suc n) = < inj₂ (from NatR refl n) >
+from BoolR refl true = < inj₁ tt >
+from BoolR refl false = < inj₂ tt >
+from (TreeR y) refl (Leaf y') = {!!}
+from (TreeR y) refl (Node l r) = {!!}
+from (ListR y) refl [] = < inj₁ tt >
+from (ListR y) refl (x ∷ xs) = {!!}
+
+-- Attempted here to make TA and proof inferrable, but does gives unsolved metas when used.
+-- Maybe someone can come up with something that solves this
+
+-- to : {A : Set} {TA : Type A} {proof : isJust (finalRep TA) ≡ true} → μType TA proof → A 
+-- to {TA = NatR} {proof = refl} < inj₁ tt > = zero
+-- to {TA = NatR} {proof = refl} < inj₂ n > = suc (to n)
+-- to {TA = BoolR} {proof = refl} < inj₁ tt > = true
+-- to {TA = BoolR} {proof = refl} < inj₂ tt > = false
+-- to {TA = (ListR y)} {proof = refl} < inj₁ tt > = []
+-- to {TA = (ListR y)} {proof = refl} < inj₂ x > = {!!}
+-- to {TA = (TreeR y)} {proof = refl} < inj₁ x > = {!!}
+-- to {TA = (TreeR y)} {proof = refl} < inj₂ x > = {!!}
+
+-- from : {A : Set} {TA : Type A} {proof : isJust (finalRep TA) ≡ true} → A → μType TA proof
+-- from {TA = NatR} {proof = refl} zero = < inj₁ tt >
+-- from {TA = NatR} {proof = refl} (suc n) = < inj₂ (from n) >
+-- from {TA = BoolR} {proof = refl} true = < inj₁ tt >
+-- from {TA = BoolR} {proof = refl} false = < inj₂ tt >
+-- from {TA = (ListR y)} {proof = refl}  [] = < inj₁ tt >
+-- from {TA = (ListR y)} {proof = refl} (x ∷ xs) = {!!}
+-- from {TA = (TreeR y)} {proof = refl} (Leaf y') = {!!}
+-- from {TA = (TreeR y)} {proof = refl} (Node l r) = {!!}
+
 record IsoProof (A : Set) : Set where
   field
     typeRep : Type A
     repProof : isJust (finalRep typeRep) ≡ true
-    fromA : A → μ (fromJust (finalRep typeRep) repProof)
-    toA : μ (fromJust (finalRep typeRep) repProof) → A
+    fromA : A → μType typeRep repProof
+    toA : μType typeRep repProof → A
     invProofA : (x : A) → toA (fromA x) ≡ x
-    invProofRepA : (y : μ (fromJust (finalRep typeRep) repProof)) → fromA (toA y) ≡ y
+    invProofRepA : (y : μType typeRep repProof) → fromA (toA y) ≡ y
 
-invNat : (x : ℕ) → to NatR (from NatR x) ≡ x
+invNat : (x : ℕ) → to NatR refl (from NatR refl x) ≡ x
 invNat zero = refl
 invNat (suc n) = cong suc (invNat n)
-
-invRepNat : (y : μ (regRep NatR)) → from NatR (to NatR y) ≡ y
+ 
+invRepNat : (y : μType NatR refl) → from NatR refl (to NatR refl y) ≡ y
 invRepNat < inj₁ tt > = refl
-invRepNat < inj₂ n > = cong (λ n → < inj₂ n >) (invRepNat n)
+invRepNat < inj₂ n > = cong (λ n → < inj₂ n >) (invRepNat n) 
 
 natIso : IsoProof ℕ
 natIso = record {typeRep = NatR;
                  repProof = refl;
-                 fromA = from NatR;
-                 toA = to NatR;
+                 fromA = from NatR refl;
+                 toA = to NatR refl;
                  invProofA = invNat;
                  invProofRepA = invRepNat}
 
-invBool : (x : Bool) → to BoolR (from BoolR x) ≡ x
+invBool : (x : Bool) → to BoolR refl (from BoolR refl x) ≡ x
 invBool false = refl
 invBool true = refl
 
-invRepBool : (y : μ (regRep BoolR)) → from BoolR (to BoolR y) ≡ y
+invRepBool : (y : μType BoolR refl) → from BoolR refl (to BoolR refl y) ≡ y
 invRepBool < inj₁ tt > = refl
 invRepBool < inj₂ tt > = refl
 
 boolIso : IsoProof Bool
 boolIso = record {typeRep = BoolR;
                   repProof = refl;
-                  fromA = from BoolR;
-                  toA = to BoolR;
+                  fromA = from BoolR refl;
+                  toA = to BoolR refl;
                   invProofA = invBool;
                   invProofRepA = invRepBool}
 
-invList : {A : Set} → (TA : Type A) → (x : List A) → to (ListR TA) (from (ListR TA) x) ≡ x
-invList TA [] = refl
-invList TA (x ∷ xs) = cong (λ xs → x ∷ xs) (invList TA xs)
+-- invList : {A : Set} → (TA : Type A) → (x : List A) → to (ListR TA) (from (ListR TA) x) ≡ x
+-- invList TA [] = refl
+-- invList TA (x ∷ xs) = cong (λ xs → x ∷ xs) (invList TA xs)
 
-invRepList : {A : Set} → (TA : Type A) → (y : μ (regRep (ListR TA))) → from (ListR TA) (to (ListR TA) y) ≡ y
-invRepList TA < inj₁ tt > = refl
-invRepList TA < inj₂ (x , xs) > = cong (λ xs → < inj₂ (x , xs) >) (invRepList TA xs)
+-- invRepList : {A : Set} → (TA : Type A) → (y : μ (regRep (ListR TA))) → from (ListR TA) (to (ListR TA) y) ≡ y
+-- invRepList TA < inj₁ tt > = refl
+-- invRepList TA < inj₂ (x , xs) > = cong (λ xs → < inj₂ (x , xs) >) (invRepList TA xs)
 
-testProof : {A : Set} -> (TA : Type A) -> isJust (finalRep (ListR TA)) ≡ true
-testProof TA = refl
-
-listIso : {A : Set} → Type A → IsoProof (List A)
-listIso TA = record {typeRep = ListR TA;
-                     repProof = refl;
-                     fromA = from (ListR TA);
-                     toA = to (ListR TA);
-                     invProofA = invList TA;
-                     invProofRepA = invRepList TA}
+-- listIso : {A : Set} → Type A → IsoProof (List A)
+-- listIso TA = record {typeRep = ListR TA;
+--                      repProof = refl;
+--                      fromA = from (ListR TA);
+--                      toA = to (ListR TA);
+--                      invProofA = invList TA;
+--                      invProofRepA = invRepList TA}
 
