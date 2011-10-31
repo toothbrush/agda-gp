@@ -20,3 +20,6 @@ isJust nothing = false
 fromJust : {A : Set} → (x : Maybe A) → (isJust x) ≡ true → A
 fromJust (just a) refl = a
 fromJust nothing ()
+
+_$_ : ∀ {a b} -> (a -> b) -> a -> b
+f $ a = f a

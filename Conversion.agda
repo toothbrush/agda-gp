@@ -17,10 +17,7 @@ open import Regular
 open import Spine
 open import Util
 
-data μ_ (c : C) : Set where
-  <_> : el c (μ c) → μ c
-
-makeProd : {A B : Set} → Type A → Signature B → C
+makeProd : {A B : Set} → Type A → Signature B → Code
 makeProd TA (Sig y) = U
 makeProd TA (Sig y · y') with tEQ TA y'
 ... | nothing = K (raw y')
@@ -29,14 +26,14 @@ makeProd TA (y · y') with tEQ TA y'
 ... | nothing = makeProd TA y ⊗ K (raw y')
 ... | just refl = makeProd TA y ⊗ I
 
-makeSum : {A : Set} → Type A → List (Signature A) → Maybe C
+makeSum : {A : Set} → Type A → List (Signature A) → Maybe Code
 makeSum TA [] = nothing
 makeSum TA (x ∷ []) = just (makeProd TA x)
 makeSum TA (x' ∷ xs) with makeSum TA xs
 ... | nothing = nothing
 ... | just sum = just (makeProd TA x' ⊕ sum)
 
-finalRep : {A : Set} → Type A → Maybe C
+finalRep : {A : Set} → Type A → Maybe Code
 finalRep TA = makeSum TA (datatype TA)
 
 μType : {A : Set} → (TA : Type A) → isJust (finalRep TA) ≡ true → Set
@@ -47,10 +44,14 @@ to NatR refl < inj₁ tt > = zero
 to NatR refl < inj₂ n > = suc (to NatR refl n)
 to BoolR refl < inj₁ tt > = true
 to BoolR refl < inj₂ tt > = false
-to (ListR y) refl < inj₁ tt > = []
-to (ListR y) refl < inj₂ (x , xs) > = {!!}
-to (TreeR y) refl < inj₁ x > = {!x!}
-to (TreeR y) refl < inj₂ (l , r) > = {!!}
+to (ListR y) refl < inj₁ x > = []
+to (ListR y) refl < inj₂ y' > = {!!}
+--to (ListR y) refl < inj₁ tt > = []
+--to (ListR y) refl < inj₂ (x , xs) > = {!!}
+to (TreeR y) refl < inj₁ x > = {!!}
+to (TreeR y) refl < inj₂ y' > = {!!}
+--to (TreeR y) refl < inj₁ x > = {!x!}
+--to (TreeR y) refl < inj₂ (l , r) > = {!!}
 
 from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
 from NatR refl zero = < inj₁ tt >

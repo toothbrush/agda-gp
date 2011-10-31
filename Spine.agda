@@ -44,11 +44,11 @@ fromSpine : {a : Set} -> Spine a -> a
 fromSpine (Con c) = c
 fromSpine (f :<>: (_ :> x)) = (fromSpine f) x
 
-raw : {a : Set} -> Type a -> Set
-raw NatR = ℕ
-raw BoolR = Bool
-raw (ListR y) = List (raw y)
-raw (TreeR y) = Tree (raw y)
+decodeType : {a : Set} -> Type a -> Set
+decodeType NatR = ℕ
+decodeType BoolR = Bool
+decodeType (ListR y) = List (decodeType y)
+decodeType (TreeR y) = Tree (decodeType y)
 
 tEQ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
 tEQ NatR NatR = just refl
