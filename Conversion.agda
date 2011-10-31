@@ -17,35 +17,55 @@ open import Regular
 open import Spine
 open import Util
 
+-- Convert a signature to a code
+-- We know that A ≡ B
 makeProd : {A B : Set} → Type A → Signature B → Code
-makeProd TA (Sig y) = U
-makeProd TA (Sig y · y') with tEQ TA y'
-... | nothing = K (raw y')
+makeProd tyA (Sig y) = U
+makeProd tyA (Sig y · tyB) with Type tyA ≡Type tyB
+... | nothing = K $ decodeType tyB
 ... | just refl = I
-makeProd TA (y · y') with tEQ TA y'
-... | nothing = makeProd TA y ⊗ K (raw y')
-... | just refl = makeProd TA y ⊗ I
+makeProd tyA (y · tyB) with Type tyA ≡Type tyB
+... | nothing = makeProd tyA y ⊗ K (decodeType tyB)
+... | just refl = makeProd tyA y ⊗ I
 
+
+-- Convert a list of signatures to a code
 makeSum : {A : Set} → Type A → List (Signature A) → Maybe Code
-makeSum TA [] = nothing
-makeSum TA (x ∷ []) = just (makeProd TA x)
-makeSum TA (x' ∷ xs) with makeSum TA xs
+makeSum tyA [] = nothing
+makeSum tyA (x ∷ []) = just $ makeProd tyA x
+makeSum tyA (x ∷ xs) with makeSum tyA xs
 ... | nothing = nothing
-... | just sum = just (makeProd TA x' ⊕ sum)
+... | just sum = just $ makeProd tyA x ⊕ sum
 
-finalRep : {A : Set} → Type A → Maybe Code
-finalRep TA = makeSum TA (datatype TA)
+-- Convert a Spine Type to a Code in Regular
+convert : {A : Set} → Type A → Maybe Code
+convert tyA = makeSum tyA (datatype tyA)
 
-μType : {A : Set} → (TA : Type A) → isJust (finalRep TA) ≡ true → Set
-μType TA proof = μ (fromJust (finalRep TA) proof)
 
-to : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → μType TA proof → A 
+μType : {A : Set} → (TA : Type A) → isJust (convert TA) ≡ true → Set
+μType tyA proof = μ (fromJust (convert tyA) proof)
+
+Nat : Set
+Nat = μType NatR refl 
+
+zeroNat : Nat
+zeroNat = < inj₁ tt >
+
+MyList : Set
+MyList = μType (ListR NatR) refl
+
+[x] : MyList
+[x] = < inj₂ ( zero , < inj₁ tt > ) >
+
+to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → μType TA proof → A 
 to NatR refl < inj₁ tt > = zero
 to NatR refl < inj₂ n > = suc (to NatR refl n)
 to BoolR refl < inj₁ tt > = true
 to BoolR refl < inj₂ tt > = false
+to (ListR NatR) refl < inj₁ tt > = []
+to (ListR NatR) refl < inj₂ (x , xs) > = x ∷ to (ListR NatR) refl xs
 to (ListR y) refl < inj₁ x > = []
-to (ListR y) refl < inj₂ y' > = {!!}
+to (ListR y) refl < inj₂ x > = {!!}
 --to (ListR y) refl < inj₁ tt > = []
 --to (ListR y) refl < inj₂ (x , xs) > = {!!}
 to (TreeR y) refl < inj₁ x > = {!!}
@@ -53,6 +73,7 @@ to (TreeR y) refl < inj₂ y' > = {!!}
 --to (TreeR y) refl < inj₁ x > = {!x!}
 --to (TreeR y) refl < inj₂ (l , r) > = {!!}
 
+{-
 from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
 from NatR refl zero = < inj₁ tt >
 from NatR refl (suc n) = < inj₂ (from NatR refl n) >
@@ -143,3 +164,4 @@ boolIso = record {typeRep = BoolR;
 --                      invProofA = invList TA;
 --                      invProofRepA = invRepList TA}
 
+-}

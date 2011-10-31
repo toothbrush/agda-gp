@@ -23,3 +23,5 @@ fromJust nothing ()
 
 _$_ : ∀ {a b} -> (a -> b) -> a -> b
 f $ a = f a
+
+infixr 0 _$_
