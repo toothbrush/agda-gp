@@ -57,6 +57,15 @@ MyList = μType (ListR NatR) refl
 [x] : MyList
 [x] = < inj₂ ( zero , < inj₁ tt > ) >
 
+MyListList : Set
+MyListList = μType (ListR (ListR NatR)) refl
+
+-- xx = [[]]
+-- xx should be:
+-- xx = < inj₂ ( < inj₁ tt > , < inj₁ tt > )
+xx : MyListList
+xx = < inj₂ ( [] , < inj₁ tt > ) >
+
 to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → μType TA proof → A 
 to NatR refl < inj₁ tt > = zero
 to NatR refl < inj₂ n > = suc (to NatR refl n)
@@ -64,8 +73,8 @@ to BoolR refl < inj₁ tt > = true
 to BoolR refl < inj₂ tt > = false
 to (ListR NatR) refl < inj₁ tt > = []
 to (ListR NatR) refl < inj₂ (x , xs) > = x ∷ to (ListR NatR) refl xs
-to (ListR y) refl < inj₁ x > = []
-to (ListR y) refl < inj₂ x > = {!!}
+to (ListR A) refl < inj₁ tt > = []
+to (ListR A) refl < inj₂ x > = {!!}
 --to (ListR y) refl < inj₁ tt > = []
 --to (ListR y) refl < inj₂ (x , xs) > = {!!}
 to (TreeR y) refl < inj₁ x > = {!!}
