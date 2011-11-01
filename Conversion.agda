@@ -20,50 +20,56 @@ open import Util
 -- Convert a signature to a code
 -- We know that A ≡ B
 makeProd : {A B : Set} → Type A → Signature B → Code
-makeProd tyA (Sig _) = U
-makeProd tyA (Sig _ · con , t) = K $ decodeType t
-makeProd tyA (Sig _ · rec , t) = I
-makeProd tyA (s · con , t) = makeProd tyA s ⊗ K (decodeType t)
-makeProd tyA (s · rec , t) = makeProd tyA s ⊗ I
+makeProd tyA (Sig y) = U
+makeProd tyA (Sig y · tyB) with Type tyA ≡Type tyB
+... | nothing = K $ decodeType tyB
+... | just refl = I
+makeProd tyA (y · tyB) with Type tyA ≡Type tyB
+... | nothing = makeProd tyA y ⊗ K (decodeType tyB)
+... | just refl = makeProd tyA y ⊗ I
+
+--makeProd tyA (Sig _) = U
+--makeProd tyA (Sig _ · con , t) = K $ decodeType t
+--makeProd tyA (Sig _ · rec , t) = I
+--makeProd tyA (s · con , t) = makeProd tyA s ⊗ K (decodeType t)
+--makeProd tyA (s · rec , t) = makeProd tyA s ⊗ I
 
 -- Convert a list of signatures to a code
-makeSum : {A : Set} → Type A → List (Signature A) → Maybe Code
-makeSum tyA [] = nothing
-makeSum tyA (x ∷ []) = just $ makeProd tyA x
-makeSum tyA (x ∷ xs) with makeSum tyA xs
-... | nothing = nothing
-... | just sum = just $ makeProd tyA x ⊕ sum
+makeSum : {A : Set} → Type A → ListNZ (Signature A) → Code
+makeSum tyA (El x) = makeProd tyA x
+makeSum tyA (x ∷ xs) = makeProd tyA x ⊕ makeSum tyA xs
 
 -- Convert a Spine Type to a Code in Regular
-convert : {A : Set} → Type A → Maybe Code
+convert : {A : Set} → Type A → Code
 convert tyA = makeSum tyA (datatype tyA)
 
 
-μType : {A : Set} → (TA : Type A) → isJust (convert TA) ≡ true → Set
-μType tyA proof = μ (fromJust (convert tyA) proof)
+μType : {A : Set} → (TA : Type A) → Set
+μType tyA = μ (convert tyA)
 
---Nat : Set
---Nat = μType nat refl 
+Nat : Set
+Nat = μType nat  
 
---zeroNat : Nat
---zeroNat = < inj₁ tt >
+zeroNat : Nat
+zeroNat = < inj₁ tt >
 
---MyList : Set
---MyList = μType (list nat) refl
+{--MyList : {a : Set} -> Type a -> Set
+MyList a = μType (list a) refl
 
---[x] : MyList
---[x] = < inj₂ ( zero , < inj₁ tt > ) >
+[x] : MyList nat
+[x] = < inj₂ ( zero , < inj₁ tt > ) >
 
---MyListList : Set
---MyListList = μType (list (list nat)) refl
+f : {a : Set}{b : Type a} -> MyList b -> MyList b
+f < inj₁ tt > = < inj₁ tt >
+f < inj₂ y > = {!!}
 
 -- xx = [[]]
 -- xx should be:
 -- xx = < inj₂ ( < inj₁ tt > , < inj₁ tt > )
 --xx : MyListList
 --xx = < inj₂ ( [] , < inj₁ tt > ) >
-
-to₀ : {A : Set} → (T : Type₀ A) → (proof : isJust (convert (t₀ T)) ≡ true) → μType (t₀ T) proof → A
+--}
+{--to₀ : {A : Set} → (T : Type₀ A) → (proof : isJust (convert (t₀ T)) ≡ true) → μType (t₀ T) proof → A
 to₀ bool refl < inj₁ tt > = false
 to₀ bool refl < inj₂ tt > = true
 to₀ nat refl < inj₁ tt > = zero
@@ -81,24 +87,17 @@ to₁ (tree nat) refl < inj₂ (x , y) > = Node (to₁ (tree nat) refl x) (to₁
 to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → μType TA proof → A
 to (t₀ t) p v = to₀ t p v
 to (t₁ t) p v = to₁ t p v
+-}
+
+to : {A : Set} → (tyA : Type A) → μType tyA → A 
+to nat  < inj₁ tt > = zero
+to nat  < inj₂ n >  = suc $ to nat n
+to bool < inj₁ tt > = true
+to bool < inj₂ tt > = false
+to (list a) < inj₁ tt > = []
+to (list _) < inj₂ x > = x
 
 {-
-to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → μ (fromJust (convert TA)) proof → A 
-to NatR refl < inj₁ tt > = zero
-to NatR refl < inj₂ n > = suc (to NatR refl n)
-to BoolR refl < inj₁ tt > = true
-to BoolR refl < inj₂ tt > = false
-to (ListR NatR) refl < inj₁ tt > = []
-to (ListR NatR) refl < inj₂ (x , xs) > = x ∷ to (ListR NatR) refl xs
-to (ListR A) refl < inj₁ tt > = []
-to (ListR A) refl < inj₂ x > = {!!}
---to (ListR y) refl < inj₁ tt > = []
---to (ListR y) refl < inj₂ (x , xs) > = {!!}
-to (TreeR y) refl < inj₁ x > = {!!}
-to (TreeR y) refl < inj₂ y' > = {!!}
---to (TreeR y) refl < inj₁ x > = {!x!}
---to (TreeR y) refl < inj₂ (l , r) > = {!!}
-
 from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
 from NatR refl zero = < inj₁ tt >
 from NatR refl (suc n) = < inj₂ (from NatR refl n) >
