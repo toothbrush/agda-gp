@@ -36,7 +36,7 @@ data Type : Set -> Set where
   bool : Type Bool
   nat  : Type ℕ
   list : {a : Set} -> Type a -> Type (List a)
- 
+
 data Typed (a : Set) : Set where
   _:>_ : a -> Type a -> Typed a
 

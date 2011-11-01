@@ -42,7 +42,6 @@ makeSum tyA (x ∷ xs) = makeProd tyA x ⊕ makeSum tyA xs
 convert : {A : Set} → Type A → Code
 convert tyA = makeSum tyA (datatype tyA)
 
-
 μType : {A : Set} → (TA : Type A) → Set
 μType tyA = μ (convert tyA)
 
@@ -52,32 +51,30 @@ Nat = μType nat
 zeroNat : Nat
 zeroNat = < inj₁ tt >
 
+ListNat : Set
+ListNat = μType (list nat)
 
-to : {A : Set} → (tyA : Type A) → μType tyA  → A 
-to nat  < inj₁ tt > = zero
-to nat  < inj₂ n >  = suc $ to nat n
-to bool < inj₁ tt > = true
-to bool < inj₂ tt > = false
-to (list _) < inj₁ tt > = []
-to (list nat) < inj₂ (x , xs) > = x ∷ to (list nat) xs
-to (list {b} a) < inj₂ (x , xs) > = {!!} ∷ to (list a) xs
+z : ListNat
+z = < inj₁ tt >
 
-{--MyList : {a : Set} -> Type a -> Set
-MyList a = μType (list a) refl
+z1 : ListNat
+z1 = < inj₂ ( zero , < inj₁ tt > ) >
 
-[x] : MyList nat
-[x] = < inj₂ ( zero , < inj₁ tt > ) >
+proof : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+proof nat = refl
+proof bool  = refl
+proof (list a) with decodeType a | proof a
+... | x | refl = refl
 
-f : {a : Set}{b : Type a} -> MyList b -> MyList b
-f < inj₁ tt > = < inj₁ tt >
-f < inj₂ y > = {!!}
+to : {A : Set} → (tyA : Type A) → μType tyA → (decodeType tyA ≡ A) → A 
+to nat  < inj₁ tt > refl = zero 
+to nat  < inj₂ n >  refl = suc $ to nat n refl
+to bool < inj₁ tt > refl = true
+to bool < inj₂ tt > refl = false
+to (list a) < inj₁ tt > _ = []
+to (list a) < inj₂ (x , xs) > y with decodeType a | proof a | to (list a) xs y
+... | p | refl | z = x ∷ z 
 
--- xx = [[]]
--- xx should be:
--- xx = < inj₂ ( < inj₁ tt > , < inj₁ tt > )
---xx : MyListList
---xx = < inj₂ ( [] , < inj₁ tt > ) >
---}
 {--to₀ : {A : Set} → (T : Type₀ A) → (proof : isJust (convert (t₀ T)) ≡ true) → μType (t₀ T) proof → A
 to₀ bool refl < inj₁ tt > = false
 to₀ bool refl < inj₂ tt > = true
