@@ -16,11 +16,21 @@ open import Relation.Binary.Core public using (_≡_; refl)
 open import Util
 
 -- Type Universe
-data Type : Set -> Set where
-  NatR : Type ℕ
-  BoolR : Type Bool
-  ListR : {a : Set} -> Type a -> Type (List a)
-  TreeR : {a : Set} -> Type a -> Type (Tree a)
+data Type₀ : Set → Set where
+  bool : Type₀ Bool
+  nat : Type₀ ℕ
+
+data Type₁ : (Set → Set) → Set → Set where
+  list : {a : Set} → Type₀ a → Type₁ List a
+  tree : {a : Set} → Type₀ a → Type₁ Tree a
+
+data Type : Set → Set where
+  t₀ : {A : Set} → Type₀ A → Type A
+  t₁ : {F : Set → Set} {A : Set} → Type₁ F A → Type (F A)
+
+data Type? : Set where
+  con : Type?
+  rec : Type?
  
 data Typed (a : Set) : Set where
   _:>_ : a -> Type a -> Typed a
@@ -28,23 +38,29 @@ data Typed (a : Set) : Set where
 infixl 1 _:>_
 
 -- Decode Type to actual Types
-decodeType : {a : Set} -> Type a -> Set
-decodeType NatR = ℕ
-decodeType BoolR = Bool
-decodeType (ListR y) = List $ decodeType y
-decodeType (TreeR y) = Tree $ decodeType y
+decodeType₀ : {A : Set} → Type₀ A → Set
+decodeType₀ bool = Bool
+decodeType₀ nat = ℕ
+
+decodeType₁ : {F : Set → Set} {A : Set} → Type₁ F A → Set
+decodeType₁ (list a) = List (decodeType₀ a)
+decodeType₁ (tree a) = Tree (decodeType₀ a)
+
+decodeType : {A : Set} → Type A → Set
+decodeType (t₀ t) = decodeType₀ t
+decodeType (t₁ t) = decodeType₁ t
 
 -- Type Equality
-Type_≡Type_ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
-Type NatR ≡Type NatR = just refl
-Type BoolR ≡Type BoolR = just refl
-Type (ListR A) ≡Type (ListR B) with Type A ≡Type B
-... | nothing = nothing
-... | just refl = just refl
-Type (TreeR A)≡Type (TreeR B) with Type A ≡Type B
-... | nothing = nothing
-... | just refl = just refl
-Type _ ≡Type _ = nothing
+--Type_≡Type_ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
+--Type NatR ≡Type NatR = just refl
+--Type BoolR ≡Type BoolR = just refl
+--Type (ListR A) ≡Type (ListR B) with Type A ≡Type B
+--... | nothing = nothing
+--... | just refl = just refl
+--Type (TreeR A)≡Type (TreeR B) with Type A ≡Type B
+--... | nothing = nothing
+--... | just refl = just refl
+--Type _ ≡Type _ = nothing
 
 -- Spine Type Representation
 data Spine : Set -> Set where
@@ -59,26 +75,27 @@ fromSpine (Con c) = c
 fromSpine (f :<>: (x :> _)) = (fromSpine f) x
 
 -- Encode a spine value
-toSpine : {a : Set} -> Type a -> a -> Spine a
-toSpine NatR n  = Con n
-toSpine BoolR b = Con b
-toSpine (ListR a) [] = Con []
-toSpine (ListR a) (x ∷ xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> ListR a) 
-toSpine (TreeR a) (Leaf x) = Con Leaf :<>: (x :> a)
-toSpine (TreeR a) (Node l r) = Con Node :<>: (l :> TreeR a) :<>: (r :> TreeR a)
+--toSpine : {a : Set} -> Type a -> a -> Spine a
+--toSpine NatR n  = Con n
+--toSpine BoolR b = Con b
+--toSpine (ListR a) [] = Con []
+--toSpine (ListR a) (x ∷ xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> ListR a) 
+--toSpine (TreeR a) (Leaf x) = Con Leaf :<>: (x :> a)
+--toSpine (TreeR a) (Node l r) = Con Node :<>: (l :> TreeR a) :<>: (r :> TreeR a)
 
 -- Signatures
 data Signature a : Set where
   Sig : a -> Signature a
-  _·_ : {b : Set} -> Signature (b -> a) -> Type b -> Signature a
+  _·_ : {b : Set} → Signature (b → a) → Type? × Type b → Signature a
 
 infixl 0 _·_
 
 -- Convert Type to a List of Signatures
-datatype : {a : Set} -> Type a -> List (Signature a)
-datatype BoolR = Sig false ∷ Sig true ∷ []
-datatype NatR  = Sig zero ∷ (Sig suc · NatR) ∷ []
-datatype (ListR a) = (Sig []) ∷ (Sig (_∷_) · a · ListR a) ∷ []
-datatype (TreeR a) = (Sig Leaf · a) ∷ (Sig Node · TreeR a · TreeR a) ∷ []
+datatype₁ : {F : Set → Set} {A : Set} → Type₁ F A → List (Signature (F A))
+datatype₁ (list a) = Sig [] ∷ (Sig _∷_ · con , t₀ a · rec , t₁ (list a)) ∷ []
+datatype₁ (tree a) = (Sig Leaf · con , t₀ a) ∷ (Sig Node · rec , t₁ (tree a) · rec , t₁ (tree a)) ∷ []
 
-
+datatype : {a : Set} → Type a → List (Signature a)
+datatype (t₀ bool) = Sig false ∷ Sig true ∷ []
+datatype (t₀ nat) = Sig zero ∷ (Sig suc · rec , t₀ nat) ∷ []
+datatype (t₁ t) = datatype₁ t
