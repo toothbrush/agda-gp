@@ -20,13 +20,6 @@ open import Util
 -- Convert a signature to a code
 -- We know that A ≡ B
 makeProd : {A B : Set} → Type A → Signature B → Code
---makeProd tyA (Sig y) = U
---makeProd tyA (Sig y · tyB) with Type tyA ≡Type tyB
---... | nothing = K $ decodeType tyB
---... | just refl = I
---makeProd tyA (y · tyB) with Type tyA ≡Type tyB
---... | nothing = makeProd tyA y ⊗ K (decodeType tyB)
---... | just refl = makeProd tyA y ⊗ I
 makeProd tyA (Sig _) = U
 makeProd tyA (Sig _ · con , t) = K $ decodeType t
 makeProd tyA (Sig _ · rec , t) = I
@@ -42,17 +35,14 @@ makeSum tyA (x ∷ xs) = makeProd tyA x ⊕ makeSum tyA xs
 convert : {A : Set} → Type A → Code
 convert tyA = makeSum tyA (datatype tyA)
 
-μType : {A : Set} → (TA : Type A) → Set
-μType tyA = μ (convert tyA)
-
 Nat : Set
-Nat = μType nat  
+Nat = μ (convert nat)
 
 zeroNat : Nat
 zeroNat = < inj₁ tt >
 
 ListNat : Set
-ListNat = μType (list nat)
+ListNat = μ (convert $ list nat)
 
 z : ListNat
 z = < inj₁ tt >
@@ -60,40 +50,24 @@ z = < inj₁ tt >
 z1 : ListNat
 z1 = < inj₂ ( zero , < inj₁ tt > ) >
 
+-- After 4 hours banging head finally managed to create the proof
 proof : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
 proof nat = refl
 proof bool  = refl
 proof (list a) with decodeType a | proof a
 ... | x | refl = refl
 
-to : {A : Set} → (tyA : Type A) → μType tyA → (decodeType tyA ≡ A) → A 
-to nat  < inj₁ tt > refl = zero 
-to nat  < inj₂ n >  refl = suc $ to nat n refl
-to bool < inj₁ tt > refl = true
-to bool < inj₂ tt > refl = false
-to (list a) < inj₁ tt > _ = []
-to (list a) < inj₂ (x , xs) > y with decodeType a | proof a | to (list a) xs y
+-- Naturally following the proof.
+-- Main> to (list nat) z1
+-- 0 ∷ []
+to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+to nat  < inj₁ tt > = zero 
+to nat  < inj₂ n >  = suc $ to nat n
+to bool < inj₁ tt > = true
+to bool < inj₂ tt > = false
+to (list a) < inj₁ tt > = []
+to (list a) < inj₂ (x , xs) > with decodeType a | proof a | to (list a) xs
 ... | p | refl | z = x ∷ z 
-
-{--to₀ : {A : Set} → (T : Type₀ A) → (proof : isJust (convert (t₀ T)) ≡ true) → μType (t₀ T) proof → A
-to₀ bool refl < inj₁ tt > = false
-to₀ bool refl < inj₂ tt > = true
-to₀ nat refl < inj₁ tt > = zero
-to₀ nat refl < inj₂ n > = suc (to₀ nat refl n)
-
-to₁ : {F : Set → Set} {A : Set} → (t : Type₁ F A) → (proof : isJust (convert (t₁ t)) ≡ true) → μType (t₁ t) proof → F A
-to₁ (list _) refl < inj₁ tt > = []
-to₁ (list bool) refl < inj₂ (x , xs) > = x ∷ to₁ (list bool) refl xs
-to₁ (list nat) refl < inj₂ (x , xs) > = x ∷ to₁ (list nat) refl xs
-to₁ (tree bool) refl < inj₁ x > = Leaf x
-to₁ (tree nat) refl < inj₁ x > = Leaf x
-to₁ (tree bool) refl < inj₂ (x , y) > = Node (to₁ (tree bool) refl x) (to₁ (tree bool) refl x)
-to₁ (tree nat) refl < inj₂ (x , y) > = Node (to₁ (tree nat) refl x) (to₁ (tree nat) refl y)
-
-to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → μType TA proof → A
-to (t₀ t) p v = to₀ t p v
-to (t₁ t) p v = to₁ t p v
--}
 
 {-
 from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
