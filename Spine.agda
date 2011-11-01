@@ -28,9 +28,9 @@ open import Util
 --  t₀ : {A : Set} → Type₀ A → Type A
 --  t₁ : {F : Set → Set} {A : Set} → Type₁ F A → Type (F A)
 
---data Type? : Set where
---  con : Type?
---  rec : Type?
+data Type? : Set where
+  con : Type?
+  rec : Type?
 
 data Type : Set -> Set where
   bool : Type Bool
@@ -93,8 +93,8 @@ fromSpine (f :<>: (x :> _)) = (fromSpine f) x
 -- Signatures
 data Signature a : Set where
   Sig : a -> Signature a
-  _·_ : {b : Set} -> Signature (b -> a) -> Type b -> Signature a
---  _·_ : {b : Set} → Signature (b → a) → Type? × Type b → Signature a
+--  _·_ : {b : Set} -> Signature (b -> a) -> Type b -> Signature a
+  _·_ : {b : Set} → Signature (b → a) → Type? × Type b → Signature a
 
 infixl 0 _·_
 
@@ -116,5 +116,5 @@ data ListNZ (A : Set) : Set where
 
 datatype : {a : Set} -> Type a -> ListNZ (Signature a)
 datatype bool = Sig false ∷ El (Sig true)
-datatype nat  = Sig zero ∷ El (Sig suc · nat)
-datatype (list a) = Sig [] ∷ El (Sig (_∷_) · a · list a)
+datatype nat  = Sig zero ∷ El (Sig suc · rec , nat)
+datatype (list a) = Sig [] ∷ El (Sig (_∷_) · con , a · rec , (list a))

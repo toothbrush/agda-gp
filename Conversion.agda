@@ -20,19 +20,18 @@ open import Util
 -- Convert a signature to a code
 -- We know that A ≡ B
 makeProd : {A B : Set} → Type A → Signature B → Code
-makeProd tyA (Sig y) = U
-makeProd tyA (Sig y · tyB) with Type tyA ≡Type tyB
-... | nothing = K $ decodeType tyB
-... | just refl = I
-makeProd tyA (y · tyB) with Type tyA ≡Type tyB
-... | nothing = makeProd tyA y ⊗ K (decodeType tyB)
-... | just refl = makeProd tyA y ⊗ I
-
---makeProd tyA (Sig _) = U
---makeProd tyA (Sig _ · con , t) = K $ decodeType t
---makeProd tyA (Sig _ · rec , t) = I
---makeProd tyA (s · con , t) = makeProd tyA s ⊗ K (decodeType t)
---makeProd tyA (s · rec , t) = makeProd tyA s ⊗ I
+--makeProd tyA (Sig y) = U
+--makeProd tyA (Sig y · tyB) with Type tyA ≡Type tyB
+--... | nothing = K $ decodeType tyB
+--... | just refl = I
+--makeProd tyA (y · tyB) with Type tyA ≡Type tyB
+--... | nothing = makeProd tyA y ⊗ K (decodeType tyB)
+--... | just refl = makeProd tyA y ⊗ I
+makeProd tyA (Sig _) = U
+makeProd tyA (Sig _ · con , t) = K $ decodeType t
+makeProd tyA (Sig _ · rec , t) = I
+makeProd tyA (s · con , t) = makeProd tyA s ⊗ K (decodeType t)
+makeProd tyA (s · rec , t) = makeProd tyA s ⊗ I
 
 -- Convert a list of signatures to a code
 makeSum : {A : Set} → Type A → ListNZ (Signature A) → Code
@@ -52,6 +51,16 @@ Nat = μType nat
 
 zeroNat : Nat
 zeroNat = < inj₁ tt >
+
+
+to : {A : Set} → (tyA : Type A) → μType tyA  → A 
+to nat  < inj₁ tt > = zero
+to nat  < inj₂ n >  = suc $ to nat n
+to bool < inj₁ tt > = true
+to bool < inj₂ tt > = false
+to (list _) < inj₁ tt > = []
+to (list nat) < inj₂ (x , xs) > = x ∷ to (list nat) xs
+to (list {b} a) < inj₂ (x , xs) > = {!!} ∷ to (list a) xs
 
 {--MyList : {a : Set} -> Type a -> Set
 MyList a = μType (list a) refl
@@ -88,14 +97,6 @@ to : {A : Set} → (TA : Type A) → (proof : isJust (convert TA) ≡ true) → 
 to (t₀ t) p v = to₀ t p v
 to (t₁ t) p v = to₁ t p v
 -}
-
-to : {A : Set} → (tyA : Type A) → μType tyA → A 
-to nat  < inj₁ tt > = zero
-to nat  < inj₂ n >  = suc $ to nat n
-to bool < inj₁ tt > = true
-to bool < inj₂ tt > = false
-to (list a) < inj₁ tt > = []
-to (list _) < inj₂ x > = x
 
 {-
 from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
