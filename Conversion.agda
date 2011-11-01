@@ -51,10 +51,10 @@ z1 : ListNat
 z1 = < inj₂ ( zero , < inj₁ tt > ) >
 
 -- After 4 hours banging head finally managed to create the proof
-proof : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
-proof nat = refl
-proof bool  = refl
-proof (list a) with decodeType a | proof a
+decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+decodeType nat ≡A  = refl
+decodeType bool ≡A = refl
+decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 
 -- Naturally following the proof.
@@ -66,43 +66,21 @@ to nat  < inj₂ n >  = suc $ to nat n
 to bool < inj₁ tt > = true
 to bool < inj₂ tt > = false
 to (list a) < inj₁ tt > = []
-to (list a) < inj₂ (x , xs) > with decodeType a | proof a | to (list a) xs
+to (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | to (list a) xs
 ... | p | refl | z = x ∷ z 
 
+-- Main> from (list nat) (0 ∷ [])
+-- < inj₂ (0 , < inj₁ tt >) >
+from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+from bool true = < inj₁ tt >
+from bool false = < inj₂ tt >
+from nat zero = < inj₁ tt >
+from nat (suc n) = < inj₂ (from nat n) >
+from (list a) [] = < inj₁ tt >
+from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
+... | p | refl | z = < inj₂ (x , z) >
+
 {-
-from : {A : Set} → (TA : Type A) → (proof : isJust (finalRep TA) ≡ true) → A → μType TA proof
-from NatR refl zero = < inj₁ tt >
-from NatR refl (suc n) = < inj₂ (from NatR refl n) >
-from BoolR refl true = < inj₁ tt >
-from BoolR refl false = < inj₂ tt >
-from (TreeR y) refl (Leaf y') = {!!}
-from (TreeR y) refl (Node l r) = {!!}
-from (ListR y) refl [] = < inj₁ tt >
-from (ListR y) refl (x ∷ xs) = {!!}
-
--- Attempted here to make TA and proof inferrable, but does gives unsolved metas when used.
--- Maybe someone can come up with something that solves this
-
--- to : {A : Set} {TA : Type A} {proof : isJust (finalRep TA) ≡ true} → μType TA proof → A 
--- to {TA = NatR} {proof = refl} < inj₁ tt > = zero
--- to {TA = NatR} {proof = refl} < inj₂ n > = suc (to n)
--- to {TA = BoolR} {proof = refl} < inj₁ tt > = true
--- to {TA = BoolR} {proof = refl} < inj₂ tt > = false
--- to {TA = (ListR y)} {proof = refl} < inj₁ tt > = []
--- to {TA = (ListR y)} {proof = refl} < inj₂ x > = {!!}
--- to {TA = (TreeR y)} {proof = refl} < inj₁ x > = {!!}
--- to {TA = (TreeR y)} {proof = refl} < inj₂ x > = {!!}
-
--- from : {A : Set} {TA : Type A} {proof : isJust (finalRep TA) ≡ true} → A → μType TA proof
--- from {TA = NatR} {proof = refl} zero = < inj₁ tt >
--- from {TA = NatR} {proof = refl} (suc n) = < inj₂ (from n) >
--- from {TA = BoolR} {proof = refl} true = < inj₁ tt >
--- from {TA = BoolR} {proof = refl} false = < inj₂ tt >
--- from {TA = (ListR y)} {proof = refl}  [] = < inj₁ tt >
--- from {TA = (ListR y)} {proof = refl} (x ∷ xs) = {!!}
--- from {TA = (TreeR y)} {proof = refl} (Leaf y') = {!!}
--- from {TA = (TreeR y)} {proof = refl} (Node l r) = {!!}
-
 record IsoProof (A : Set) : Set where
   field
     typeRep : Type A
