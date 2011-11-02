@@ -19,21 +19,21 @@ open import Util
 
 -- Convert a signature to a code
 -- We know that A ≡ B
-makeProd : {A B : Set} → Type A → Signature B → Code
-makeProd tyA (Sig _) = U
-makeProd tyA (Sig _ · con , t) = K $ decodeType t
-makeProd tyA (Sig _ · rec , t) = I
-makeProd tyA (s · con , t) = makeProd tyA s ⊗ K (decodeType t)
-makeProd tyA (s · rec , t) = makeProd tyA s ⊗ I
+makeProd : {B : Set} → Signature B → Code
+makeProd (Sig _) = U
+makeProd (Sig _ · con , t) = K $ decodeType t
+makeProd (Sig _ · rec , t) = I
+makeProd (s · con , t) = makeProd s ⊗ K (decodeType t)
+makeProd (s · rec , t) = makeProd s ⊗ I
 
 -- Convert a list of signatures to a code
-makeSum : {A : Set} → Type A → ListNZ (Signature A) → Code
-makeSum tyA (El x) = makeProd tyA x
-makeSum tyA (x ∷ xs) = makeProd tyA x ⊕ makeSum tyA xs
+makeSum : {A : Set} → ListNZ (Signature A) → Code
+makeSum (El x) = makeProd x
+makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
 
 -- Convert a Spine Type to a Code in Regular
 convert : {A : Set} → Type A → Code
-convert tyA = makeSum tyA (datatype tyA)
+convert tyA = makeSum (datatype tyA)
 
 Nat : Set
 Nat = μ (convert nat)
