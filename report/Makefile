@@ -1,0 +1,18 @@
+LHS_FILE=$(wildcard *.lagda)
+TEX_FILE=$(LHS_FILE:.lagda=.tex)
+
+all: pdf
+
+pdf: $(TEX_FILE)
+	pdflatex $(TEX_FILE)
+	pdflatex $(TEX_FILE)
+
+$(TEX_FILE): $(LHS_FILE)
+	@echo $(LHS_FILE)
+	lhs2TeX --agda $(LHS_FILE) > $(TEX_FILE)
+
+pdfshow: notes
+	if [ -x /usr/bin/open ] ; then open notes.$(TEX_FILE:.tex=.pdf); fi
+	if [ -x /usr/bin/xpdf ] ; then xpdf notes.$(TEX_FILE:.tex=.pdf); fi &
+
+.PHONY: pdfshow pdf $(TEX_FILE)
