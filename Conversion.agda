@@ -80,6 +80,11 @@ from (list a) [] = < inj₁ tt >
 from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
+S→R : {a r : Set}{t : Type a} → Spine a → ListNZ (Signature a) → (n : ℕ) → ⟦ convert t ⟧ r
+S→R {a} {r} {t} (Con y)     l n = {!!}
+S→R {a} {r} {t} (y :<>: y') l n = {!!}
+
+
 {-
 record IsoProof (A : Set) : Set where
   field
