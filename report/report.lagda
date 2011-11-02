@@ -1,14 +1,35 @@
-%input report.fmt
 \documentclass[a4paper]{article}
 
+\def\textmu{}
+
+\RequirePackage{xcolor}
+\newcommand{\ty}[1]{{\color{orange}\mathsf{#1}}}
+\newcommand{\con}[1]{{\color{blue}\mathsf{#1}}}
+\newcommand{\consymop}[1]{{\color{blue}\mathsf{#1}}}
+\newcommand{\consym}[1]{{\color{blue}\mathsf{#1}}}
+\newcommand{\id}[1]{{\color{blue}\mathsf{#1}}}
+
+
+
+%\newcommand{\ty}[1]{{\color{orange}\mathsf{#1}}}
+\colorlet{darkgreen}{green!30!black}
+%include report.fmt
+
+\usepackage{url}
+\usepackage{hyperref}
 \title{Isomorphism between Regular and Spine in Agda}
 \date{\today}
+\author{Justin Paston-Cooper\footnote{\url{paston.cooper@@gmail.com}} \and Marcelo Sousa\footnote{\url{dipython@@gmail.com}} \and Paul van der Walt\footnote{\url{paul@@denknerd.org}}}
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-    
+    This report details our efforts in embedding Spine and Regular (two Haskell generic programming
+    libraries with different generic views) into Agda, a dependently typed programming language. There is also
+    an automatic conversion function between representations in the two views, and a partial isomorphism.
+    Furthermore, LIGD (another GP library) is looked at, and an attempt is made to embed it in Agda, and pointers
+    for further research are given.
 \end{abstract}
 
 \section{Introduction}
@@ -41,6 +62,29 @@ operator which results in a representation which is isomorphic to the to-be-repr
 
 
 
+\begin{code}
+
+-- Code for Regular
+data Code : Set where
+  U : Code
+  K : Set → Code
+  I : Code
+  _⊕_ : Code → Code → Code
+  _⊗_ : Code → Code → Code
+
+-- Interpretation function for Regular Code
+⟦_⟧_ : Code → Set → Set
+⟦ U ⟧       r = ⊤
+⟦ K a ⟧     r = a
+⟦ I ⟧       r = r
+⟦ c1 ⊕ c2 ⟧ r = ⟦ c1 ⟧ r ⊎ ⟦ c2 ⟧ r
+⟦ c1 ⊗ c2 ⟧ r = ⟦ c1 ⟧ r × ⟦ c2 ⟧ r
+
+-- Least fixed point of Codes
+data μ_ (c : Code) : Set where
+  <_> : ⟦ c ⟧ (μ c) → μ c
+
+\end{code}
 \section{Spine in Agda}
 
 

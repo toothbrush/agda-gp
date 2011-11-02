@@ -176,5 +176,5 @@ listBoolSpine2ListS _ = nothing
 
 listSpine2ListS : {a : Set}  -> Spine (List a) → Maybe (ListS a)
 listSpine2ListS (Con []) = just (inl tt)
-listSpine2ListS ((Con _) ⋄ x :: a ⋄ xs :: ListR a') = just {!!} --just (inr (x , xs))
+listSpine2ListS ((Con _) ⋄ x :: a ⋄ xs :: ListR a') = just (inr ({!x!} , {!!})) -- (x , xs)
 listSpine2ListS _ = nothing
