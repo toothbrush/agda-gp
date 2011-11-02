@@ -1,0 +1,21 @@
+
+% Unicode declarations
+
+\DeclareUnicodeCharacter{9655}{\ensuremath{\triangleright}}
+\DeclareUnicodeCharacter{9656}{\ensuremath{\blacktriangleright}}
+\DeclareUnicodeCharacter{9657}{\ensuremath{\triangleright}}
+\DeclareUnicodeCharacter{8649}{\ensuremath{\rightrightarrows}}
+\DeclareUnicodeCharacter{0955}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{0956}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{9653}{\ensuremath{\vartriangle}}
+\DeclareUnicodeCharacter{9663}{\ensuremath{\triangledown}}
+\DeclareUnicodeCharacter{0966}{\ensuremath{\varphi}}
+\DeclareUnicodeCharacter{0968}{\ensuremath{\psi}}
+\DeclareUnicodeCharacter{0931}{\ensuremath{\Sigma}}
+\DeclareUnicodeCharacter{8245}{\textsf{`}}
+\DeclareUnicodeCharacter{8242}{\textsf{'}}
+\DeclareUnicodeCharacter{8621}{\ensuremath{\leftrightsquigarrow}}
+\DeclareUnicodeCharacter{8599}{\ensuremath{\nnearrow}}
+\DeclareUnicodeCharacter{8600}{\ensuremath{\ssearrow}}
+\DeclareUnicodeCharacter{8261}{\ensuremath{\Lbag}}
+\DeclareUnicodeCharacter{8262}{\ensuremath{\Rbag}}
