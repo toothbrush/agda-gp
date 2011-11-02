@@ -11,8 +11,8 @@ $(TEX_FILE): $(LHS_FILE)
 	@echo $(LHS_FILE)
 	lhs2TeX --agda $(LHS_FILE) > $(TEX_FILE)
 
-pdfshow: notes
-	if [ -x /usr/bin/open ] ; then open notes.$(TEX_FILE:.tex=.pdf); fi
-	if [ -x /usr/bin/xpdf ] ; then xpdf notes.$(TEX_FILE:.tex=.pdf); fi &
+pdfshow: pdf
+	if [ -x /usr/bin/open ] ; then open $(TEX_FILE:.tex=.pdf); fi
+	if [ -x /usr/bin/xpdf ] ; then xpdf $(TEX_FILE:.tex=.pdf); fi &
 
 .PHONY: pdfshow pdf $(TEX_FILE)

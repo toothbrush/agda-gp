@@ -1,5 +1,8 @@
+%input report.fmt
 \documentclass[a4paper]{article}
 
+\title{Isomorphism between Regular and Spine in Agda}
+\date{\today}
 \begin{document}
 
 \maketitle
@@ -43,7 +46,8 @@ operator which results in a representation which is isomorphic to the to-be-repr
 
 \section{The embedding}
 
-Spine has support for existential types, since it allows arbitrary parameters to be used in its Signature type.
+Spine has support for existential types, since it allows arbitrary parameters to be used in its Signature type. Therefore, it's not possible to translate
+all Spine representations into Regular. We can, however, translate a subset of Spine into Regular, as is done in the following code example.
 
 
 \end{document}
