@@ -27,6 +27,3 @@ data Code : Set where
 -- Least fix point of Codes
 data μ_ (c : Code) : Set where
   <_> : ⟦ c ⟧ (μ c) → μ c
-
-list : Set -> Code
-list a = U ⊕ ((K a) ⊗ I) 
