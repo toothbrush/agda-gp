@@ -24,6 +24,6 @@ data Code : Set where
 ⟦ c1 ⊕ c2 ⟧ r = ⟦ c1 ⟧ r ⊎ ⟦ c2 ⟧ r
 ⟦ c1 ⊗ c2 ⟧ r = ⟦ c1 ⟧ r × ⟦ c2 ⟧ r
 
--- Least fix point of Codes
+-- Least fixed point of Codes
 data μ_ (c : Code) : Set where
   <_> : ⟦ c ⟧ (μ c) → μ c
