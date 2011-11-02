@@ -4,7 +4,9 @@ module Spine where
 
 open import Data.Nat
 open import Data.Maybe
-open import Data.List
+open import Data.List using (List; _∷_; [])
+open import Data.List.NonEmpty
+open import Data.BoundedVec using (BoundedVec) renaming (_∷_ to _BV∷_; [] to BV[])
 open import Data.Bool
 
 open import Data.Product
@@ -62,7 +64,7 @@ toSpine : {a : Set} -> Type a -> a -> Spine a
 toSpine nat n  = Con n
 toSpine bool b = Con b
 toSpine (list a) [] = Con []
-toSpine (list a) (x ∷ xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
+toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
 
 -- Signatures
 data Signature a : Set where
@@ -71,11 +73,7 @@ data Signature a : Set where
 
 infixl 0 _·_
 
-data ListNZ (A : Set) : Set where
-  El  : (x : A) -> ListNZ A
-  _∷_ : (x : A) (xs : ListNZ A) → ListNZ A
-
-datatype : {a : Set} -> Type a -> ListNZ (Signature a)
-datatype bool = Sig false ∷ El (Sig true)
-datatype nat  = Sig zero ∷ El (Sig suc · rec , nat)
-datatype (list a) = Sig [] ∷ El (Sig (_∷_) · con , a · rec , (list a))
+datatype : {a : Set} -> Type a -> List⁺ (Signature a)
+datatype bool = Sig true ∷ [ Sig false ]
+datatype nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
+datatype (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]

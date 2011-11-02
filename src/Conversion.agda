@@ -3,14 +3,16 @@
 module Conversion where
 
 open import Data.Nat
-open import Data.List
-open import Data.Bool
-open import Data.Maybe
+open import Data.List using (List; _∷_; [])
+open import Data.List.NonEmpty
+open import Data.Bool public using (Bool; true; false; T; not)
+open import Data.Unit using (⊤)
 
 open import Data.Product
-open import Data.Unit
+open import Data.Unit public using (tt)
 open import Data.Sum
 
+-- open import Relation.Nullary.Decidable 
 open import Relation.Binary.Core public using (_≡_; refl)
 
 open import Regular
@@ -27,8 +29,8 @@ makeProd (s · con , t) = makeProd s ⊗ K (decodeType t)
 makeProd (s · rec , t) = makeProd s ⊗ I
 
 -- Convert a list of signatures to a code
-makeSum : {A : Set} → ListNZ (Signature A) → Code
-makeSum (El x) = makeProd x
+makeSum : {A : Set} → List⁺ (Signature A) → Code
+makeSum [ x ] = makeProd x
 makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
 
 -- Convert a Spine Type to a Code in Regular
@@ -57,6 +59,7 @@ decodeType bool ≡A = refl
 decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 
+
 -- Naturally following the proof.
 -- Main> to (list nat) z1
 -- 0 ∷ []
@@ -80,10 +83,9 @@ from (list a) [] = < inj₁ tt >
 from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
-S→R : {a r : Set}{t : Type a} → Spine a → ListNZ (Signature a) → (n : ℕ) → ⟦ convert t ⟧ r
-S→R {a} {r} {t} (Con y)     l n = {!!}
-S→R {a} {r} {t} (y :<>: y') l n = {!!}
-
+--S→R : {a r : Set}{t : Type a} → Spine a → ListNZ (Signature a) → (n : ℕ) → ⟦ convert t ⟧ r
+--S→R {a} {r} {t} (Con y)     l n = {!!}
+--S→R {a} {r} {t} (y :<>: y') l n = {!!}
 
 {-
 record IsoProof (A : Set) : Set where
