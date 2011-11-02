@@ -2,3 +2,5 @@
 *.log
 report.pdf
 report.tex
+*.out
+*.ptb
