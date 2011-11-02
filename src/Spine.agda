@@ -77,3 +77,13 @@ datatype : {a : Set} -> Type a -> List⁺ (Signature a)
 datatype bool = Sig true ∷ [ Sig false ]
 datatype nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
 datatype (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
+
+-- 
+True : Spine Bool
+True = Con true
+
+zeroo : Spine ℕ
+zeroo = Con zero
+
+two : Spine ℕ
+two = Con suc :<>: (zero :> nat)

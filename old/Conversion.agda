@@ -83,8 +83,7 @@ from (list a) [] = < inj₁ tt >
 from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
--- Paul are these functions that you are talking about in the second bullet of
--- your email?!
+-- I suppose this is Spine to Regular
 -- Main S→R bool (Con false) 
 -- < inj₂ tt >
 -- Main> S→R (list nat) (Con _∷_ :<>: (zero :> nat) :<>: ([] :> (list nat)))
@@ -92,7 +91,62 @@ from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) x
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
 S→R tyA s = from tyA (fromSpine s) 
 
--- Main> R→S (list nat) (< inj₂ (0 , < inj₁ tt >) >)
--- Con _∷_ :<>: 0 :> nat :<>: [] :> list nat
-R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
-R→S tyA r = toSpine tyA (to tyA r)
+{-
+record IsoProof (A : Set) : Set where
+  field
+    typeRep : Type A
+    repProof : isJust (finalRep typeRep) ≡ true
+    fromA : A → μType typeRep repProof
+    toA : μType typeRep repProof → A
+    invProofA : (x : A) → toA (fromA x) ≡ x
+    invProofRepA : (y : μType typeRep repProof) → fromA (toA y) ≡ y
+
+invNat : (x : ℕ) → to NatR refl (from NatR refl x) ≡ x
+invNat zero = refl
+invNat (suc n) = cong suc (invNat n)
+ 
+invRepNat : (y : μType NatR refl) → from NatR refl (to NatR refl y) ≡ y
+invRepNat < inj₁ tt > = refl
+invRepNat < inj₂ n > = cong (λ n → < inj₂ n >) (invRepNat n) 
+
+natIso : IsoProof ℕ
+natIso = record {typeRep = NatR;
+                 repProof = refl;
+                 fromA = from NatR refl;
+                 toA = to NatR refl;
+                 invProofA = invNat;
+                 invProofRepA = invRepNat}
+
+invBool : (x : Bool) → to BoolR refl (from BoolR refl x) ≡ x
+invBool false = refl
+invBool true = refl
+
+invRepBool : (y : μType BoolR refl) → from BoolR refl (to BoolR refl y) ≡ y
+invRepBool < inj₁ tt > = refl
+invRepBool < inj₂ tt > = refl
+
+boolIso : IsoProof Bool
+boolIso = record {typeRep = BoolR;
+                  repProof = refl;
+                  fromA = from BoolR refl;
+                  toA = to BoolR refl;
+                  invProofA = invBool;
+                  invProofRepA = invRepBool}
+
+-- invList : {A : Set} → (TA : Type A) → (x : List A) → to (ListR TA) (from (ListR TA) x) ≡ x
+-- invList TA [] = refl
+-- invList TA (x ∷ xs) = cong (λ xs → x ∷ xs) (invList TA xs)
+
+-- invRepList : {A : Set} → (TA : Type A) → (y : μ (regRep (ListR TA))) → from (ListR TA) (to (ListR TA) y) ≡ y
+-- invRepList TA < inj₁ tt > = refl
+-- invRepList TA < inj₂ (x , xs) > = cong (λ xs → < inj₂ (x , xs) >) (invRepList TA xs)
+
+-- listIso : {A : Set} → Type A → IsoProof (List A)
+-- listIso TA = record {typeRep = ListR TA;
+--                      repProof = refl;
+--                      fromA = from (ListR TA);
+--                      toA = to (ListR TA);
+--                      invProofA = invList TA;
+--                      invProofRepA = invRepList TA}
+
+-}
