@@ -59,7 +59,6 @@ decodeType bool ≡A = refl
 decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 
-
 -- Naturally following the proof.
 -- Main> to (list nat) z1
 -- 0 ∷ []
