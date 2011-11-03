@@ -14,3 +14,9 @@ TODO:
 
 - write about ligd and spine: comparison / similarities and possible translation
 - why is spine supposedly bigger than ligd?
+
+Notes:
+
+I think that we should mention in the report that the addition of
+Type? is purely to help Agda, and that any instance of type being
+converted from is recursive, and that any other is constant.
