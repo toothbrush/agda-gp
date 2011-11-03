@@ -33,10 +33,10 @@ data Typed (a : Set) : Set where
 infixl 1 _:>_
 
 -- Decode Type in Set
-decodeType : {a : Set} -> Type a -> Set
-decodeType nat = ℕ
-decodeType bool = Bool
-decodeType (list a) = List $ decodeType a
+interpretSTRep : {a : Set} -> Type a -> Set
+interpretSTRep nat = ℕ
+interpretSTRep bool = Bool
+interpretSTRep (list a) = List $ interpretSTRep a
 
 -- Type Equality
 Type_≡Type_ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
@@ -62,7 +62,7 @@ fromSpine (f :<>: (x :> _)) = (fromSpine f) x
 -- Encode a spine value
 toSpine : {a : Set} -> Type a -> a -> Spine a
 toSpine nat zero  = Con zero
-toSpine nat (suc n) = Con suc :<>: (n :> nat) 
+toSpine nat (suc n) = Con suc :<>: (n :> nat)
 toSpine bool b = Con b
 toSpine (list a) [] = Con []
 toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
@@ -74,17 +74,7 @@ data Signature a : Set where
 
 infixl 0 _·_
 
-datatype : {a : Set} -> Type a -> List⁺ (Signature a)
-datatype bool = Sig true ∷ [ Sig false ]
-datatype nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
-datatype (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
-
--- 
-True : Spine Bool
-True = Con true
-
-zeroo : Spine ℕ
-zeroo = Con zero
-
-two : Spine ℕ
-two = Con suc :<>: (suc zero :> nat)
+sigList : {a : Set} -> Type a -> List⁺ (Signature a)
+sigList bool = Sig true ∷ [ Sig false ]
+sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
+sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
