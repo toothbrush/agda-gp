@@ -86,4 +86,4 @@ zeroo : Spine ℕ
 zeroo = Con zero
 
 two : Spine ℕ
-two = Con (suc zero)
+two = Con suc :<>: (suc zero :> nat)
