@@ -61,7 +61,8 @@ fromSpine (f :<>: (x :> _)) = (fromSpine f) x
 
 -- Encode a spine value
 toSpine : {a : Set} -> Type a -> a -> Spine a
-toSpine nat n  = Con n
+toSpine nat zero  = Con zero
+toSpine nat (suc n) = Con suc :<>: (n :> nat) 
 toSpine bool b = Con b
 toSpine (list a) [] = Con []
 toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
