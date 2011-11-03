@@ -14,7 +14,7 @@ TODO:
 
 - write about ligd and spine: comparison / similarities and possible translation
 - why is spine supposedly bigger than ligd?
-
+- Tidy up LIGDAttempt using library functions, also LIGDAndSpine
 Notes:
 
 I think that we should mention in the report that the addition of

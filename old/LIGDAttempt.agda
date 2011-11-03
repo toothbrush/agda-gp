@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module JustinTest where
+module LIGDAttempt where
 
 open import Function
 -- open import Data.List
