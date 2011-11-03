@@ -4,12 +4,21 @@ module Test where
 
 open import Data.Sum
 open import Data.Product
-open import Data.Nat
 open import Data.Bool
+open import Data.Nat
 open import Data.List
+
 open import Conversion
 open import Spine
 open import Regular
+open import Util
+
+
+Nat : Set
+Nat = μ (convert nat)
+
+ListNat : Set
+ListNat = μ (convert $ list nat)
 
 
 z : ListNat
