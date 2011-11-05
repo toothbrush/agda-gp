@@ -40,6 +40,9 @@ data Rep : Set → Set where
 ListS : Set -> Set
 ListS A = ⊤ ⊎ A × List A
 
+Nat : Set
+Nat = ⊤ ⊎ Nat
+
 fromList : ∀ {A} → List A → ListS A
 fromList []          = inj₁ tt
 fromList (x ∷ xs)  = inj₂ (x , xs)

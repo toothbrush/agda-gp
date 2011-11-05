@@ -45,26 +45,26 @@ interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
 ... | x | refl = refl
 
 -- Naturally following the proof.
--- Main> injectReg (list nat) z1
+-- Main> from (list nat) z1
 -- 0 ∷ []
-injectReg : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
-injectReg nat  < inj₁ tt > = zero 
-injectReg nat  < inj₂ n >  = suc $ injectReg nat n
-injectReg bool < inj₁ tt > = true
-injectReg bool < inj₂ tt > = false
-injectReg (list a) < inj₁ tt > = []
-injectReg (list a) < inj₂ (x , xs) > with interpretSTRep a | interpretSTRep a ≡A | injectReg (list a) xs
+from : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+from nat  < inj₁ tt > = zero 
+from nat  < inj₂ n >  = suc $ from nat n
+from bool < inj₁ tt > = true
+from bool < inj₂ tt > = false
+from (list a) < inj₁ tt > = []
+from (list a) < inj₂ (x , xs) > with interpretSTRep a | interpretSTRep a ≡A | from (list a) xs
 ... | p | refl | z = x ∷ z 
 
--- Main> pullbackReg (list nat) (0 ∷ [])
+-- Main> to (list nat) (0 ∷ [])
 -- < inj₂ (0 , < inj₁ tt >) >
-pullbackReg : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
-pullbackReg bool true = < inj₁ tt >
-pullbackReg bool false = < inj₂ tt >
-pullbackReg nat zero = < inj₁ tt >
-pullbackReg nat (suc n) = < inj₂ (pullbackReg nat n) >
-pullbackReg (list a) [] = < inj₁ tt >
-pullbackReg (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | pullbackReg (list a) xs
+to : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+to bool true = < inj₁ tt >
+to bool false = < inj₂ tt >
+to nat zero = < inj₁ tt >
+to nat (suc n) = < inj₂ (to nat n) >
+to (list a) [] = < inj₁ tt >
+to (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | to (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
 -- Main S→R bool (Con false) 
@@ -72,9 +72,9 @@ pullbackReg (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | 
 -- Main> S→R (list nat) (Con _∷_ :<>: (zero :> nat) :<>: ([] :> (list nat)))
 -- < inj₂ (0 , < inj₁ tt >) > 
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
-S→R tyA s = pullbackReg tyA (fromSpine s) 
+S→R tyA s = to tyA (fromSpine s) 
 
 -- Main> R→S (list nat) (< inj₂ (0 , < inj₁ tt >) >)
 -- Con _∷_ :<>: 0 :> nat :<>: [] :> list nat
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
-R→S tyA r = toSpine tyA (injectReg tyA r)
+R→S tyA r = toSpine tyA (from tyA r)
