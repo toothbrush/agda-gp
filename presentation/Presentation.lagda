@@ -179,8 +179,8 @@ data μ_ (c : Code) : Set where
 \end{frame}
 
 \begin{frame}
-    Now we want functions
-    \begin{spec}
+Now we want functions
+\begin{spec}
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
 
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
@@ -190,9 +190,8 @@ To start with, convert representations.
 \end{frame}
 
 \begin{frame}
-    \begin{spec}
+\begin{spec}
 -- Convert a signature to a code
--- We know that A ≡ B
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
 makeProd (Sig _ · con , t) = K $ interpretSTRep t
@@ -208,16 +207,55 @@ makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
 -- Convert a Spine Type to a Code in Regular
 convert : {A : Set} → Type A → Code
 convert tyA = makeSum (sigList tyA)
-        
-    \end{spec}
+\end{spec}
 \end{frame}
+\begin{frame}{Lists of signatures}
+\begin{itemize}
+\item User defined spine representation of datatypes
+\item They are needed for producing a complete sum
+\end{itemize}
+\begin{spec}
+sigList : {a : Set} -> Type a -> List⁺ (Signature a)
+sigList bool = Sig true ∷ [ Sig false ]
+sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
+sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
+\end{spec}
+\nt{This is provided by the user}
+\end{frame}
+%% from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+%% from (list a) < inj₁ tt > = []
+%% from (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | from (list a) xs
+%% ... | p | refl | z = x ∷ z 
+\begin{frame}
+\begin{spec}
+S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
+S→R tyA s = from tyA (fromSpine s) 
 
+R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
+R→S tyA r = toSpine tyA (to tyA r)
 
+to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+to (list a) [] = < inj₁ tt >
+to (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | to (list a) xs
+... | p | refl | z = < inj₂ (x , z) >
 
+toSpine : {a : Set} -> Type a -> a -> Spine a
+toSpine (list a) [] = Con []
+toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
+
+interpretSTRep_≡A : {A : Set} -> (ty : Type A) → interpretSTRep ty ≡ A
+interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
+... | x | refl = refl
+\end{spec}
+\nt{@convert@ gives a spine injection into Regular}
+\nt{Mention that only case for list is given}
+\nt{interpretSTRep is the interpretation function}
+\end{frame}
 \begin{frame}{Contribution}
-
-
-
+\begin{itemize}
+\item We have shown an injective embedding of Spine into Regular
+\item Automatic conversion of representations 
+\end{itemize}
 \end{frame}
 \begin{frame}{Related Work}
 \end{frame}
