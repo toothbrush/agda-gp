@@ -6,7 +6,6 @@ open import Data.Nat
 open import Data.Maybe
 open import Data.List using (List; _∷_; [])
 open import Data.List.NonEmpty
-open import Data.BoundedVec using (BoundedVec) renaming (_∷_ to _BV∷_; [] to BV[])
 open import Data.Bool
 
 open import Data.Product
@@ -74,7 +73,7 @@ data Signature a : Set where
 
 infixl 0 _·_
 
-sigList : {a : Set} -> Type a -> List⁺ (Signature a)
+sigList : {n : ℕ}{a : Set} -> Type a -> List⁺ (Signature a)
 sigList bool = Sig true ∷ [ Sig false ]
 sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
 sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]

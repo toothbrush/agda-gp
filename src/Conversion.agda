@@ -67,6 +67,10 @@ pullbackReg (list a) [] = < inj₁ tt >
 pullbackReg (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | pullbackReg (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
+
+f : List (Signature a) -> μ (convert tyA) -> A
+f (x ∷ []) < inj₂ >
+
 -- Main S→R bool (Con false) 
 -- < inj₂ tt >
 -- Main> S→R (list nat) (Con _∷_ :<>: (zero :> nat) :<>: ([] :> (list nat)))
