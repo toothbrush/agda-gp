@@ -1,0 +1,373 @@
+%include polycode.fmt
+%include agda.fmt
+%include unicode.fmt
+
+\DeclareMathAlphabet{\mathsfbf}{OT1}{phv}{bx}{n}
+
+%if style == code
+
+% Spacing and pretty-printing
+%format ^             =
+%format ^^            = " "
+%format ^^.           =
+%format ...           = "undefined"
+%%format (HOLE x)      = "?"
+
+%else
+
+% Not entirely sure why this is necessary, but anyway...
+%subst dummy          = "\_"
+
+% Spacing
+%format ^             = " "
+%format ^^            = "\;"
+
+% Pretty-printing
+%format ^^.           = "\;."
+%format ...           = "\ldots "
+%format (HOLE x)      = "\goal{?_{" x "}}"
+%format (MKCODE x)    = "\id{\backprime x \prime}"
+%format ListFCode      = "\id{`ListF′}"
+%format NatE      = "\id{`ℕ′}"
+%format ListE      = "\id{`ListE′}"
+%format ListCode      = "\id{`List′}"
+%format BoolFCode      = "\id{`BoolF′}"
+%format BoolCode      = "\id{`Bool′}"
+%format ExprFCode      = "\id{`ExprF′}"
+%format DeclFCode      = "\id{`DeclF′}"
+%format ASTFCode      = "\id{`ASTF′}"
+%format ASTCode      = "\id{`AST′}"
+%format >>>           = "\!>\!\!>\!\!>\!"
+%format _>>>_         = "\_\!\!>\!\!>\!\!>\!\!\_"
+%format >=>           = "\!>\!\!=\!\!>\!"
+%format _>>=_         = "\_\!\!>\!\!\!>\!\!\!=\!\!\_"
+
+
+% Type constructors
+%format Set           = "\ty{Set}"
+%format Set₁          = "\ty{Set₁}"
+%format Fin           = "\ty{Fin}"
+%format Code          = "\ty{Code}"
+%format ▸             = "\ty{▸}"
+%format _▸_           = "\ty{\_\!▸\!\_}"
+%%format Indexed       = "\ty{Indexed}"
+%format Expr          = "\ty{Expr}"
+%format Decl          = "\ty{Decl}"
+%format Perfect       = "\ty{Perfect}"
+%format Perfect'       = "\ty{Perfect′}"
+%format Pair          = "\ty{Pair}"
+%format Vec           = "\ty{Vec}"
+%format Maybe         = "\ty{Maybe}"
+%format Ctxs          = "\ty{Ctxs}"
+%format Loc           = "\ty{Loc}"
+%format μ             = "\ty{μ}"
+%format ℕ             = "\ty{ℕ}"
+%format ⊥             = "\ty{⊥}"
+%format ⊤             = "\ty{⊤}"
+%%format _▷_           = "\ty{\_\!▷\!\_}"
+%%format ▷             = "\ty{▷}"
+%format _≡_           = "\ty{\ensuremath{\_\!≡\!\_}}"
+%format ≡             = "\ty{≡}"
+%format _d≡_          = "\ty{\ensuremath{\_\!\doteq\!\_}}"
+%format d≡            = "\ty{\doteq}"
+%format _⊎_           = "\ty{\ensuremath{\_\!\!⊎\!\!\_}}"
+%format ⊎             = "\ty{⊎}"
+%format _×_           = "\ty{\ensuremath{\_\!\!×\!\!\_}}"
+%format ×             = "\ty{×}"
+%format ⊎             = "\ty{⊎}"
+%format _+_           = "\ty{\ensuremath{\_\!+\!\_}}"
+%format +             = "\ty{+}"
+%format ∃             = "\ty{∃}"
+%format Bool          = "\ty{Bool}"
+%format Rose          = "\ty{Rose}"
+%format _≃_           = "\ty{\ensuremath{\_\!\!≃\!\!\_}}"
+%format newIso        = _≃_
+%format ≃             = "\ty{≃}"
+%format μCtx          = "\ty{μCtx}"
+%format μDis          = "\ty{μ_{\Lbag\Rbag}}"
+%format List          = "\ty{List}"
+
+
+%%format [_]           = "\ty{[\_]}"
+%%format [             = "\ty{[}"
+%%format ]             = "\ty{]}"
+
+
+% Constructors
+%format tt            = "\con{tt}"
+%format nothing       = "\con{nothing}"
+%format just          = "\con{just}"
+%format refl          = "\con{refl}"
+%format some          = "\con{some}"
+%format true          = "\con{true}"
+%format false         = "\con{false}"
+%format fork          = "\con{fork}"
+%format zero          = "\con{zero}"
+%format suc           = "\con{suc}"
+%format econst        = "\con{econst}"
+%format add           = "\con{add}"
+%format evar          = "\con{evar}"
+%format elet          = "\con{elet}"
+%format assign        = "\con{assign}"
+%format seq           = "\con{seq}"
+%format split         = "\con{split}"
+%format leaf          = "\con{leaf}"
+%format pair          = "\con{pair}"
+%format _,_           = "\consymop{,}"
+%format ,             = "\consym{,}"
+%format inl           = "\con{inl}"
+%format inr           = "\con{inr}"
+%format empty         = "\con{empty}"
+%format push          = "\con{push}"
+%format loc           = "\con{loc}"
+%format _∷_           = "\consymop{∷}"
+%format ∷             = "\consym{∷}"
+%format ⟨_⟩           = "\con{⟨\_⟩}"
+%format ⟨             = "\con{⟨}"
+%format ⟩             = "\con{⟩}"
+%%format []           = "\con{[]}"
+%format Z             = "\con{Z}"
+%format U             = "\con{U}"
+%format K             = "\con{K}"
+%format Ip            = "\con{I}"
+%format I1            = I' "_{" 1 "}"
+%format In            = I' "_{" n "}"
+%format P'1           = P' "_{" 1 "}"
+%format P'n           = P' "_{" n "}"
+%format P'            = "\con{P}"
+%format R'            = "\con{R}"
+%format _⊕_           = "\consymop{⊕}"
+%format ⊕             = "\consym{⊕}"
+%format _⊗_           = "\consymop{⊗}"
+%format ⊗             = "\consym{⊗}"
+%format _⊚_           = "\consymop{⊚}"
+%format ⊚             = "\consym{⊚}"
+%format Σ             = "\con{Σ}"
+%format Σ₁            = "\con{Σ_1}"
+%format Σ₂            = "\con{Σ_2}"
+%format Fix           = "\con{Fix}"
+%format Iso           = "\con{Iso}"
+%format !             = "\con{!}"
+%format ⋉             = "\consym{⋉}"
+%format _⋉_           = "\consymop{⋉}"
+%format ⋊             = "\consym{⋊}"
+%format _⋊_           = "\consymop{⋊}"
+%format ↗             = "\!\consym{↗}"
+%format ↘             = "\consym{↘}\!"
+%format _↗_↘_         = "\mathrel{\color{darkgreen}{\mathsf{\_\!\!↗\!\!\!\_\!\!↘\!\!\_}}}"
+%format ⁅             = "\consym{⁅}\!\!\!"
+%format ⁆             = "\!\!\!\consym{⁆}"
+%format ⁅_⁆           = "\con{⁅\_⁆}"
+%format inj₁          = "\con{inj_1}"
+%format inj₂          = "\con{inj_2}"
+%format rec           = "\con{rec}"
+%format k             = "\con{k}"
+%format nil           = "\con{nil}"
+%format cons          = "\con{cons}"
+
+% Identifiers
+%format T             = "\id{T}"
+%format ∥             = "\id{∥}"
+%format _∥_           = "\id{\_∥\_}"
+%format ∥-cong        = "\id{∥\ensuremath{_\text{cong}}}"
+%format map-cong      = "\id{map\ensuremath{_\text{cong}}}"
+%format map-id        = "\id{map\ensuremath{_\text{id}}}"
+%format map-∘         = "\id{map\ensuremath{_{∘}}}"
+%format id            = "\id{id}"
+%format id⇉           = "\id{id\ensuremath{_⇉}}"
+%format ⟦_⟧           = "\id{⟦\_⟧}"
+%format ⟦             = "\id{⟦}"
+%format ⟧             = "\id{⟧}"
+%format _≗_          = "\id{\_≗\_}"
+%format ≗            = "\id{≗}"
+%format ⇉∘            = "\id{∘\ensuremath{_⇉}}"
+%format _⇉∘_          = "\id{\_∘\ensuremath{_⇉}\_}"
+%format _∣Dis_        = "\id{\_|_{\Lbag\Rbag}\_}"
+%format ∣Dis          = "\id{|_{\Lbag\Rbag}}"
+%format const₁        = "\id{const}"
+%format ‵BoolF′        = "\id{‵BoolF′}"
+%format ‵Bool′        = "\id{‵Bool′}"
+%format fromBool        = "\id{fromBool}"
+%format Indexed        = "\id{Indexed}"
+%format toBool        = "\id{toBool}"
+%format isoBool₁        = "\id{isoBool₁}"
+%format isoBool₂        = "\id{isoBool₂}"
+%format isoBool        = "\id{isoBool}"
+%format _▷_        = "\id{\ensuremath{\_\!▷\!\_}}"
+%format ▷        = "\id{▷}"
+%format _∘_        = "\id{\ensuremath{\_\!∘\!\_}}"
+%format ∘        = "\id{∘}"
+%format _∣_        = "\id{\ensuremath{\_\!∣\!\_}}"
+%format ∣        = "\id{∣}"
+%format ‵ListF′        = "\id{‵ListF′}"
+%format fromList        = "\id{fromList}"
+%format toList        = "\id{toList}"
+%format isoList₁        = "\id{isoList₁}"
+%format isoList₂        = "\id{isoList₂}"
+%format isoList        = "\id{isoList}"
+%format cong≡        = "\id{cong≡}"
+%format trans≡        = "\id{trans≡}"
+%format cong≡₂       = "\id{cong≡₂}"
+%format _⇉_        = "\id{\ensuremath{\_\!⇉\!\_}}"
+%format ⇉        = "\id{⇉}"
+%format map        = "\id{map}"
+%format mapList        = "\id{mapList}"
+%format mapListExample        = "\id{mapListExample}"
+%format cata        = "\id{cata}"
+%format ana        = "\id{ana}"
+%format hylo        = "\id{hylo}"
+%format up        = "\id{up}"
+%format foldr        = "\id{foldr}"
+%format _▿_        = "\id{\ensuremath{\_\!▿\_\!}}"
+%format ▿        = "\id{▿}"
+%format uncurry        = "\id{uncurry}"
+%format const        = "\id{const}"
+%format length        = "\id{length}"
+%format lengthExample        = "\id{lengthExample}"
+%format ‵RoseF′        = "\id{‵RoseF′}"
+%format ‵Rose′        = "\id{‵Rose′}"
+%format fromRose        = "\id{fromRose}"
+%format toRose        = "\id{toRose}"
+%format AST           = "\id{AST}"
+%format expr           = "\id{expr}"
+%format decl           = "\id{decl}"
+%format ‵ExprF′           = "\id{‵ExprF′}"
+%format ‵DeclF′           = "\id{‵DeclF′}"
+%format ‵ASTF′           = "\id{‵ASTF′}"
+%format ‵AST′           = "\id{‵AST′}"
+%format toExpr           = "\id{toExpr}"
+%format toDecl           = "\id{toDecl}"
+%format fromExpr           = "\id{fromExpr}"
+%format fromDecl           = "\id{fromDecl}"
+%format VecF           = "\id{VecF}"
+%format ‵Vec′           = "\id{‵Vec′}"
+%format fromVec           = "\id{fromVec}"
+%format toVec           = "\id{toVec}"
+%format ‵PerfectF′           = "\id{‵PerfectF′}"
+%format ‵Perfect′           = "\id{‵Perfect′}"
+%format PerfectF           = "\id{PerfectF}"
+%format Ctx           = "\id{Ctx}"
+%format plug           = "\id{plug}"
+%format unw           = "\id{unw}"
+%format first           = "\id{first}"
+%format auxf           = "\id{f}"
+%format auxg           = "\id{g}"
+%format fstFix           = "\id{fstFix}"
+%format contFix           = "\id{contFix}"
+%format next           = "\id{next}"
+%format Nav           = "\id{Nav}"
+%format down           = "\id{down}"
+%format up           = "\id{up}"
+%format right           = "\id{right}"
+%format enter           = "\id{enter}"
+%format leave           = "\id{leave}"
+%format update           = "\id{update}"
+%format navTree           = "\id{navTree}"
+%format navTreeExample           = "\id{navTreeExample}"
+%format tree           = "\id{tree}"
+%format treeB           = "\id{treeB}"
+%format deqt           = "\id{deqt}"
+%format SemiDec           = "\id{SemiDec}"
+%format _∦_           = "\id{\ensuremath{\_\!∦\!\_}}"
+%format ∦           = "\id{∦}"
+%format mapMaybe           = "\id{mapMaybe}"
+%format deqtℕ           = "\id{deqtℕ}"
+%format deqtExample₁           = "\id{deqtExample₁}"
+%format deqtExample₂           = "\id{deqtExample₂}"
+%format deqtList      = "\id{deqt[]}"
+%format l₁      = "\id{l₁}"
+%format l₂      = "\id{l₂}"
+%format deqtExample₃      = "\id{deqtExample₃}"
+%format deqtExample₄      = "\id{deqtExample₄}"
+%format size      = "\id{size}"
+
+
+% shorthands
+
+%format RTag  = "_{" r "}"
+%format RTagS = "\!_{" r "}\,"
+%format PTag  = "_{" p "}"
+%format PTagS = "\!_{" p "}\,"
+%format CTag  = "_{" ig "}"
+%format CTagS = "\!_{" ig "}\,"
+%format ITag  = "_{" i "}"
+%format ITagS = "\!_{" i "}\,"
+
+%format Regular.Code = Code RTag
+%format Regular.U  = U RTag
+%format Regular.I' = I' RTag
+%format Regular.K  = K RTag
+%format Regular._⊕_ f g = f ⊕ RTagS g
+%format Regular._⊗_ f g = f ⊗ RTagS g
+%format (Regular.⟦_⟧ x) = ⟦ x ⟧ RTag
+%format (Regular.⟨_⟩ (x)) = ⟨ x ⟩ RTag
+%format Regular.μ = μ RTag
+%format Regular.map = map RTag
+%format Regular.mapFusion = map "^{" . "}" RTag
+%format Regular.mapExt = mapExt
+%format mapExt = map "^{" ∀ "}" RTag
+%format Regular.mapId = map "^{" id "}" RTag
+
+%format PolyP.Code = Code PTag
+%format PolyP.U  = U PTag
+%format PolyP.I' = I' PTag
+%format PolyP.P' = P' PTag
+%format PolyP.K  = K PTag
+%format (PolyP._⊕_ f g) = f ⊕ PTagS g
+%format (PolyP._⊗_ f g) = f ⊗ PTagS g
+%format (PolyP._⊚_ f g) = f ⊚ PTagS g
+%format (PolyP.⟦_⟧ (x))   = ⟦ x ⟧ PTag
+%format (PolyP.⟨_⟩ (x))   = ⟨ x ⟩ PTag
+%format PolyP.μ = μ PTag
+%format PolyP.map = map PTag
+
+%format Indexed.Code = Code ITag
+%format Indexed.U   = U ITag
+%format Indexed.I'  = I' ITag
+%format Indexed.!   = ! ITag
+%format Indexed.K   = K ITag
+%format Indexed.Fix = Fix ITag
+%format (Indexed._⊕_ f g) = f ⊕ ITagS g
+%format (Indexed._⊗_ f g) = f ⊗ ITagS g
+%format (Indexed._⊚_ f g) = f ⊚ ITagS g
+%format (Indexed.⟦_⟧ (x))   = ⟦ x ⟧ ITag
+%format (Indexed.⟨_⟩ (x))   = ⟨ x ⟩ ITag
+%format Indexed.μ = μ ITag
+%format Indexed.map = map ITag
+
+%format Coinductive.Code = Code CTag
+%format Coinductive.U  = U CTag
+%format Coinductive.R' = R' CTag
+%format Coinductive.K  = K CTag
+%format (Coinductive._⊕_ f g) = f ⊕ CTagS g
+%format (Coinductive._⊗_ f g) = f ⊗ CTagS g
+%format (Coinductive.⟦_⟧ x) = ⟦ x ⟧ CTag
+%format (Coinductive.⟨_⟩ (x)) = ⟨ x ⟩ CTag
+
+%format r2pC  = "{}" RTag "\!\!\!\Uparrow^{" PTag "}\!\!"
+%format r2p   = "{}" RTag "\!\!\!\uparrow^{" PTag "}\!\!"
+
+%format p2cC  = "{}" PTag "\!\!\!\Uparrow^{" CTag "}\!\!"
+%format p2cC' = "{}" PTag "\!\!\!\Uparrow^{" CTag ".}\!\!"
+%format p2c   = "{}" PTag "\!\!\!\uparrow^{" CTag "}\!\!"
+
+%%format i2cC  = "{}" ITag "\!\!\Uparrow^{" CTag "}\!\!"
+%%format i2cC' = "{}" ITag "\!\!\Uparrow^{" CTag ".}\!\!"
+%%format i2c   = "{}" ITag "\!\!\uparrow^{" CTag "}\!\!"
+%format i2cC  = i2c "_{" c "}"
+%format i2cC'  = i2c "_{" c "}^{\prime}" 
+
+%format fromRegular  = from RTag
+%format toRegular    = to RTag
+%format fromμRegular = fromμ RTag
+%format toμRegular   = toμ RTag
+
+%format ∎   = "\qed"
+
+%format PolyP_ListC       = ListC PTag
+%format Indexed_ListC     = ListC ITag
+%format Coinductive_ListC = ListC CTag
+
+%format Coinductive = "\id{InstantGenerics}"
+
+%endif

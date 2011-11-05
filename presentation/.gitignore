@@ -1,0 +1,12 @@
+*.aux
+*.log
+*.nav
+*.out
+Presentation.pdf
+*.snm
+Presentation.tex
+*.toc
+*.ptb
+*~
+notes.Presentation.pdf
+slides.Presentation.pdf
