@@ -45,40 +45,36 @@ interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
 ... | x | refl = refl
 
 -- Naturally following the proof.
--- Main> from (list nat) z1
+-- Main> to (list nat) z1
 -- 0 ∷ []
-from : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
-from nat  < inj₁ tt > = zero 
-from nat  < inj₂ n >  = suc $ from nat n
-from bool < inj₁ tt > = true
-from bool < inj₂ tt > = false
-from (list a) < inj₁ tt > = []
-from (list a) < inj₂ (x , xs) > with interpretSTRep a | interpretSTRep a ≡A | from (list a) xs
+to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+to nat  < inj₁ tt > = zero 
+to nat  < inj₂ n >  = suc $ to nat n
+to bool < inj₁ tt > = true
+to bool < inj₂ tt > = false
+to (list a) < inj₁ tt > = []
+to (list a) < inj₂ (x , xs) > with interpretSTRep a | interpretSTRep a ≡A | to (list a) xs
 ... | p | refl | z = x ∷ z 
 
--- Main> to (list nat) (0 ∷ [])
+-- Main> from (list nat) (0 ∷ [])
 -- < inj₂ (0 , < inj₁ tt >) >
-to : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
-to bool true = < inj₁ tt >
-to bool false = < inj₂ tt >
-to nat zero = < inj₁ tt >
-to nat (suc n) = < inj₂ (to nat n) >
-to (list a) [] = < inj₁ tt >
-to (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | to (list a) xs
+from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+from bool true = < inj₁ tt >
+from bool false = < inj₂ tt >
+from nat zero = < inj₁ tt >
+from nat (suc n) = < inj₂ (from nat n) >
+from (list a) [] = < inj₁ tt >
+from (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
-
-
-f : List (Signature a) -> μ (convert tyA) -> A
-f (x ∷ []) < inj₂ >
 
 -- Main S→R bool (Con false) 
 -- < inj₂ tt >
 -- Main> S→R (list nat) (Con _∷_ :<>: (zero :> nat) :<>: ([] :> (list nat)))
 -- < inj₂ (0 , < inj₁ tt >) > 
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
-S→R tyA s = to tyA (fromSpine s) 
+S→R tyA s = from tyA (fromSpine s) 
 
 -- Main> R→S (list nat) (< inj₂ (0 , < inj₁ tt >) >)
 -- Con _∷_ :<>: 0 :> nat :<>: [] :> list nat
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
-R→S tyA r = toSpine tyA (from tyA r)
+R→S tyA r = toSpine tyA (to tyA r)
