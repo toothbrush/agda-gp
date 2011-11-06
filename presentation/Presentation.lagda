@@ -280,6 +280,7 @@ S→R tyA s = from tyA (fromSpine s)
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
 R→S tyA r = toSpine tyA (to tyA r)
     \end{spec}
+    \nt{Justin's bit starts here}
 \end{frame}
 \section{Contribution}
 \begin{frame}{Contribution}
@@ -317,14 +318,22 @@ R→S tyA r = toSpine tyA (to tyA r)
         \item Augment the universe of LIGD to allow Dynamic.
     \end{itemize}
     \begin{code}
-chooseConstr : {A : Set} -> List (Signature A) -> my (convert tyA) -> A
-chooseConstr (sig cons rest) < inj_1 val > = 
+applyParams : {a : Set} → (sig : Signature a) → ⟦ makeProd sig ⟧ a → a
 
-        to : {A : Set} -> (tyA : Type A) -> mu (convert tyA) -> A
-        to tyA val = chooseConstr (datatype tyA) val
-        <++>        
- \end{code}<++>   
-\end{code}<++>    
+ \end{code}   
+ \begin{code}
+chooseSig : {a : Set} → List⁺ (Signature a) → μ (convert tyA) → A
+chooseSig (sig ∷ rest) < inj₁ val > = applyParams sig val
+chooseSig (_ ∷ rest)   < inj₂ val > = chooseSig rest val
+ \end{code}   
+ \begin{code}
+
+to : {a : Set} → (tyA : Type a) → μ (convert tyA) → A
+to tyA val = with (datatype tyA)
+... | [singleSig] = applyParams singleSig val
+... | multiple = chooseSig multiple val
+               
+ \end{code}   
 \end{frame}
 \begin{frame}
     \begin{thebibliography}{9}
