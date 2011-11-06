@@ -117,7 +117,7 @@ data Type : Set -> Set where
   list : {a : Set} -> Type a -> Type (List a)
 
 data Type? : Set where
-  con : Type?
+  par : Type?
   rec : Type?
 
 data Typed (a : Set) : Set where
@@ -143,7 +143,7 @@ fromSpine (f :<>: (x :> _)) = (fromSpine f) x
 sigList : {a : Set} -> Type a -> List⁺ (Signature a)
 sigList bool = Sig true ∷ [ Sig false ]
 sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
-sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
+sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · par , a · rec , (list a)) ]
 \end{spec}
 \end{frame}
 \begin{frame}{LIGD Universe}
@@ -220,9 +220,9 @@ To start with, convert representations.
 \begin{spec}
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
-makeProd (Sig _ · (con , t)) = K ( decodeType t )
+makeProd (Sig _ · (par , t)) = K ( decodeType t )
 makeProd (Sig _ · (rec , t)) = I
-makeProd (s · (con , t)) = makeProd s ⊗ K (decodeType t)
+makeProd (s · (par , t)) = makeProd s ⊗ K (decodeType t)
 makeProd (s · (rec , t)) = makeProd s ⊗ I
 
 makeSum : {A : Set} → List⁺ (Signature A) → Code
@@ -245,8 +245,8 @@ convert tyA = makeSum (sigList tyA)
 \begin{spec}
 sigList : {a : Set} -> Type a -> List⁺ (Signature a)
 sigList bool = Sig true ∷ [ Sig false ]
-sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
-sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
+sigList nat  = Sig zero ∷ [ (Sig suc · (rec , nat) ]
+sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · (par , a) · (rec , list a)) ]
 \end{spec}
 \nt{This is provided by the user}
 \end{frame}
