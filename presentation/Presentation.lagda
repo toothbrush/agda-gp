@@ -273,9 +273,14 @@ interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
 \section{Relate work}
 \begin{frame}{Related Work}
 \begin{itemize}
-\item Formally comparing approaches to datatype-generic programming, using Agda 
+    \item Formally comparing approaches to datatype-generic programming, using Agda  (Jos\'{e} Pedro Magalh\~aes, Andres L\"oh)
 \end{itemize}
-http://dreixel.net/research/pdf/fcadgpua_pres_dtp11.pdf
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{conversions}
+    \end{center}
+    \label{fig:conversions}
+\end{figure}
 \end{frame}
 \section{Critical Analysis}
 \begin{frame}{Critical Analysis}
