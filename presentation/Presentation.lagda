@@ -36,6 +36,18 @@
 \usepackage{listings}
 \usepackage{amsmath}
 
+\newenvironment{changemargin}[2]{%
+  \begin{list}{}{%
+    \setlength{\topsep}{0pt}%
+    \setlength{\leftmargin}{#1}%
+    \setlength{\rightmargin}{#2}%
+    \setlength{\listparindent}{\parindent}%
+    \setlength{\itemindent}{\parindent}%
+    \setlength{\parsep}{\parskip}%
+  }%
+  \item[]}{\end{list}}
+
+
 \newcommand{\nt}[1]{\note{\ensuremath{\circ} ~ ~ ~#1 \\ }}
 % get rid of LaTeX-beamer warning:
 \let\Tiny=\tiny
@@ -165,7 +177,7 @@ makeProdRep (Sig _ · (ListR y)) with makeRep y
 
 \section{Regular}
 \begin{frame}{Regular}
-    Our Regular universe\nt{Marcelo's bit starts here}
+    Our Regular universe\nt{Marcelo's bit starts here, he'll talk about conversion of representations.}
 
 \begin{spec}
 data Code : Set where
@@ -187,7 +199,7 @@ data μ_ (c : Code) : Set where
 \end{spec}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Injection of Spine in Regular}
 Now we want functions
 \begin{spec}
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
@@ -198,9 +210,8 @@ R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
 To start with, convert representations.
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Convert representations}
 \begin{spec}
--- Convert a signature to a code
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
 makeProd (Sig _ · con , t) = K ( interpretSTRep t )
@@ -208,21 +219,22 @@ makeProd (Sig _ · rec , t) = I
 makeProd (s · con , t) = makeProd s ⊗ K (interpretSTRep t)
 makeProd (s · rec , t) = makeProd s ⊗ I
 
--- Convert a list of signatures to a code
 makeSum : {A : Set} → List⁺ (Signature A) → Code
 makeSum [ x ] = makeProd x
 makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
 
--- Convert a Spine Type to a Code in Regular
 convert : {A : Set} → Type A → Code
 convert tyA = makeSum (sigList tyA)
 \end{spec}
+\nt{conversion of signature to a code}
+\nt{conversion of list of signatures to code}
+\nt{Conversion of Spine Type into Regular}
 \end{frame}
 \section{Spine}
 \begin{frame}{Lists of signatures}
 \begin{itemize}
 \item User defined spine representation of datatypes
-\item They are needed for producing a complete sum
+\item They are needed for producing a sum containing all constructors
 \end{itemize}
 \begin{spec}
 sigList : {a : Set} -> Type a -> List⁺ (Signature a)
@@ -236,32 +248,38 @@ sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · con , a · rec , (list a)) ]
 %% from (list a) < inj₁ tt > = []
 %% from (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | from (list a) xs
 %% ... | p | refl | z = x ∷ z 
-\begin{frame}
+\begin{frame}{Proving injection}
 \begin{spec}
-S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
-S→R tyA s = from tyA (fromSpine s) 
-
-R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
-R→S tyA r = toSpine tyA (to tyA r)
-
 from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
 
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to (list a) [] = < inj₁ tt >
-to (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | to (list a) xs
+to (list a) (x ∷ y) with decodeType a | decodeType a ≡A | to (list a) y
 ... | p | refl | z = < inj₂ (x , z) >
 
 toSpine : {a : Set} -> Type a -> a -> Spine a
 toSpine (list a) [] = Con []
 toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
 
-interpretSTRep_≡A : {A : Set} -> (ty : Type A) → interpretSTRep ty ≡ A
-interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
+decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 \end{spec}
 \nt{@convert@ gives a spine injection into Regular}
 \nt{Mention that only case for list is given}
-\nt{interpretSTRep is the interpretation function}
+\nt{decodeType is the interpretation function}
+\end{frame}
+
+
+
+\begin{frame}
+    \begin{spec}
+S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
+S→R tyA s = from tyA (fromSpine s) 
+
+R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
+R→S tyA r = toSpine tyA (to tyA r)
+    \end{spec}
 \end{frame}
 \section{Contribution}
 \begin{frame}{Contribution}
