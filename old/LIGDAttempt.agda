@@ -88,7 +88,7 @@ mutual
        makeProdRep (Sig _ · NatR) = RNat
        makeProdRep (Sig _ · BoolR) = RBool
        makeProdRep (Sig _ · (ListR y)) with makeRep y | interpretSpine y
-       ... | ra | s = RType listEP (RSum RUnit (RProd {!!} {!!}))
+       ... | ra | s = {!!}
        makeProdRep (Sig _) = RUnit
        makeProdRep (c · d) = {!!}
    
