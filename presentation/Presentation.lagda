@@ -272,7 +272,7 @@ decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 
 
 
-\begin{frame}
+\begin{frame}{Proving injection}
     \begin{spec}
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
 S→R tyA s = from tyA (fromSpine s) 
@@ -291,7 +291,7 @@ R→S tyA r = toSpine tyA (to tyA r)
 \section{Relate work}
 \begin{frame}{Related Work}
 \begin{itemize}
-    \item Formally comparing approaches to datatype-generic programming, using Agda  (Jos\'{e} Pedro Magalh\~aes, Andres L\"oh)
+    \item Formally comparing approaches to datatype-generic programming, using Agda  (Jos\'{e} Pedro Magalh\~aes, Andres L\"oh)\cite{loh}
 \end{itemize}
 \begin{figure}[h]
     \begin{center}
@@ -307,11 +307,32 @@ R→S tyA r = toSpine tyA (to tyA r)
         \item This was done by converting Spine codes to Regular codes
         \item With the from and to functions, we then converted between Regular
               representations of spine values and concrete Agda values
-        \item \texttt{from} can be seen to be a left-inverse of \texttt{to}
+        \item |from| can be seen to be a left-inverse of |to| 
     \end{itemize}
+\end{frame}
+\begin{frame}{Further development}
     \begin{itemize}
-        \item Eliminate pattern-matching in the from and to functions.
+        \item Make |to| and |from| generic w.r.t. values.\nt{when converting from regular, }
+
         \item Augment the universe of LIGD to allow Dynamic.
     \end{itemize}
+    \begin{code}
+chooseConstr : {A : Set} -> List (Signature A) -> my (convert tyA) -> A
+chooseConstr (sig cons rest) < inj_1 val > = 
+
+        to : {A : Set} -> (tyA : Type A) -> mu (convert tyA) -> A
+        to tyA val = chooseConstr (datatype tyA) val
+        <++>        
+ \end{code}<++>   
+\end{code}<++>    
+\end{frame}
+\begin{frame}
+    \begin{thebibliography}{9}
+
+        \bibitem{loh}
+            L{\"o}h, A. and Magalh{\~a}es, J.P.,
+            \emph{Formally comparing approaches to datatype-generic programming, using Agda} (talk).
+            2011.
+    \end{thebibliography}
 \end{frame}
 \end{document}
