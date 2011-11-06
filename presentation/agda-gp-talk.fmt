@@ -132,6 +132,7 @@
 %%format []           = "\con{[]}"
 %format Z             = "\con{Z}"
 %format U             = "\con{U}"
+%format I             = "\con{I}"
 %format K             = "\con{K}"
 %format Ip            = "\con{I}"
 %format I1            = I' "_{" 1 "}"

@@ -3,6 +3,7 @@
 
 \DeclareUnicodeCharacter{9655}{\ensuremath{\triangleright}}
 \DeclareUnicodeCharacter{9656}{\ensuremath{\blacktriangleright}}
+\DeclareUnicodeCharacter{9670}{\ensuremath{\diamond}}
 \DeclareUnicodeCharacter{9657}{\ensuremath{\triangleright}}
 \DeclareUnicodeCharacter{8649}{\ensuremath{\rightrightarrows}}
 \DeclareUnicodeCharacter{0955}{\ensuremath{\lambda}}

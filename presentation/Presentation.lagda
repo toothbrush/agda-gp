@@ -79,18 +79,18 @@
 
 \begin{frame}{Similarity}
 
-Representation of $\mathbb{N}$ in Regular vs. Spine
 \begin{itemize}
     \item Signatures of constructors correspond to products
     \item List of signatures corresponds to sum
 \end{itemize}
+Representation of list in LIGD vs. Spine
 
 \begin{spec}
-sigList : {a : Set} -> Type a -> List (Signature a)
+sigList : {a : Set} → Type a → List (Signature a)
 sigList (list a) = Sig [] ∷ (Sig (_∷_) · a · (list a)) ∷ []
 
-ListRep : LCode -> LCode
-ListRep a = U ⊎ (a x (ListRep a))
+ListRep : LCode → LCode
+ListRep a = U ⊎ (a × (ListRep a))
 \end{spec}
 \nt{we modified this, though (the rec/con construction)}
 \nt{Point out how NatR is the recursive position}
@@ -111,39 +111,39 @@ ListRep a = U ⊎ (a x (ListRep a))
 \item Embed Spine and LIGD in Agda
 \end{itemize}
 \begin{spec}
-data Type : Set -> Set where
+data Type : Set → Set where
   bool : Type Bool
   nat  : Type ℕ
-  list : {a : Set} -> Type a -> Type (List a)
+  list : {a : Set} → Type a → Type (List a)
 
 data Type? : Set where
   par : Type?
   rec : Type?
 
 data Typed (a : Set) : Set where
-  _:>_ : a -> Type a -> Typed a
+  _▹_ : a → Type a → Typed a
 \end{spec}\nt{type? is for pattern matching on type representations, we ran into problems proving equality of types. (in makeproduct. the recursive case needs to be identified, but this wasn't possible, so we marked it)}
 \end{frame}
 \begin{frame}{Spine Universe}
 \begin{spec}
-data Spine : Set -> Set where
-  Con : ∀ {a} -> a -> Spine a
-  _:<>:_ : ∀ {a b} -> Spine (a -> b) -> Typed a -> Spine b
+data Spine : Set → Set where
+  Con : ∀ {a} → a → Spine a
+  _◆_ : ∀ {a b} → Spine (a → b) → Typed a → Spine b
 
 data Signature a : Set where
-  Sig : a -> Signature a
+  Sig : a → Signature a
   _·_ : {b : Set}   → Signature (a → b) 
                     → Type? × Type a → Signature b
 
-fromSpine : {a : Set} -> Spine a -> a
+fromSpine : {a : Set} → Spine a → a
 fromSpine (Con c) = c
-fromSpine (f :<>: (x :> _)) = (fromSpine f) x
+fromSpine (f ◆ (x ▹ _)) = (fromSpine f) x
 \end{spec}
 \begin{spec}
-sigList : {a : Set} -> Type a -> List⁺ (Signature a)
+sigList : {a : Set} → Type a → List⁺ (Signature a)
 sigList bool = Sig true ∷ [ Sig false ]
-sigList nat  = Sig zero ∷ [ (Sig suc · rec , nat) ]
-sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · par , a · rec , (list a)) ]
+sigList nat  = Sig zero ∷ [ Sig suc · (rec , nat) ]
+sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · (par , a) · (rec , list a)) ]
 \end{spec}
 \end{frame}
 \begin{frame}{LIGD Universe}
@@ -169,10 +169,10 @@ L⟦ rtype t _ _ ⟧ = t
 \item Ran into difficulties regarding recursion representation in LIGD
 \end{itemize}
 \begin{spec}
-rList : LCode -> LCode
+rList : LCode → LCode
 rList ra = rtype isoList (rsum runit (rprod ra (rList ra)))
 
-makeProdRep : {a : Set} -> (b : Signature a) -> LCode
+makeProdRep : {a : Set} → (b : Signature a) → LCode
 makeProdRep (Sig _ · (list y)) with makeRep y
 ... | ra = {!rList !}
 \end{spec}
@@ -237,20 +237,20 @@ convert tyA = makeSum (sigList tyA)
 \nt{conversion of list of signatures to code}
 \nt{Conversion of Spine Type into Regular}
 \end{frame}
-\begin{frame}{Lists of signatures}
-\begin{itemize}
-\item User defined spine representation of datatypes
-\item They are needed for producing a sum containing all constructors
-\end{itemize}
-\begin{spec}
-sigList : {a : Set} -> Type a -> List⁺ (Signature a)
-sigList bool = Sig true ∷ [ Sig false ]
-sigList nat  = Sig zero ∷ [ (Sig suc · (rec , nat) ]
-sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · (par , a) · (rec , list a)) ]
-\end{spec}
-\nt{This is provided by the user}
-\end{frame}
-%% from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+%% \begin{frame}{Lists of signatures}
+%% \begin{itemize}
+%% \item User defined spine representation of datatypes
+%% \item They are needed for producing a sum containing all constructors
+%% \end{itemize}
+%% \begin{spec}
+%% sigList : {a : Set} → Type a → List⁺ (Signature a)
+%% sigList bool = Sig true ∷ [ Sig false ]
+%% sigList nat  = Sig zero ∷ [ Sig suc · (rec , nat) ]
+%% sigList (list a) = Sig [] ∷ [ (Sig (_∷_) · (par , a) · (rec , list a)) ]
+%% \end{spec}
+%% \nt{This is provided by the user}
+%% \end{frame}
+%% %% from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
 %% from (list a) < inj₁ tt > = []
 %% from (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | from (list a) xs
 %% ... | p | refl | z = x ∷ z 
@@ -261,11 +261,11 @@ from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to (list a) [] = < inj₁ tt >
 to (list a) (x ∷ y) with decodeType a | decodeType a ≡A | to (list a) y
-... | p | refl | z = < inj₂ (x , z) >
+... | _ | refl | z = < inj₂ (x , z) >
 
-decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+decodeType_≡A : {A : Set} → (ty : Type A) → decodeType ty ≡ A
 decodeType (list a) ≡A with decodeType a | decodeType a ≡A
-... | x | refl = refl
+... | _ | refl = refl
 \end{spec}
 \nt{@convert@ gives a spine injection into Regular}
 \nt{Mention that only case for list is given}
@@ -310,33 +310,32 @@ R→S tyA r = toSpine tyA (to tyA r)
         \item This was done by converting Spine codes to Regular codes
         \item With the from and to functions, we then converted between Regular
               representations of spine values and concrete Agda values
-        \item |from| can be seen to be a left-inverse of |to| 
+        \item |R→S| can be seen to be a left-inverse of |S→R| ($\Rightarrow$ |S→R| is injective)
     \end{itemize}
 \end{frame}
 \begin{frame}{Further development}
     \begin{itemize}
         \item Make |to| and |from| generic w.r.t. values.\nt{when converting from regular, }
 
-        \item Augment the universe of LIGD to allow Dynamic.
     \end{itemize}
-    \begin{code}
+\begin{spec}
 applyParams : {a : Set}     → (sig : Signature a) 
                             → ⟦ makeProd sig ⟧ a → a
 
- \end{code}   
- \begin{code}
+ \end{spec}   
+ \begin{spec}
 chooseSig : {a : Set} → List⁺ (Signature a) → μ (convert tyA) → A
 chooseSig (sig ∷ rest) < inj₁ val > = applyParams sig val
 chooseSig (_ ∷ rest)   < inj₂ val > = chooseSig rest val
- \end{code}   
- \begin{code}
+ \end{spec}   
+ \begin{spec}
 
 to : {a : Set} → (tyA : Type a) → μ (convert tyA) → A
 to tyA val with (sigList tyA)
 ... | [singleSig] = applyParams singleSig val
 ... | multiple = chooseSig multiple val
                
- \end{code}   
+ \end{spec}   
 \end{frame}
 \begin{frame}
     \begin{thebibliography}{9}
