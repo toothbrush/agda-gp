@@ -19,6 +19,6 @@ $(TEX_FILE): $(LHS_FILE)
  pdfshow: notes
 	if [ -x /usr/bin/open ] ; then open notes.$(TEX_FILE:.tex=.pdf); fi
 	if [ -x /usr/bin/xpdf ] ; then xpdf notes.$(TEX_FILE:.tex=.pdf); fi &
-	if [ -x $(ADOBE_PATH) ] ; then $(ADOBE_PATH) notes.$(TEX_FILE:.tex=.pdf); fi
+	if [ -x $(ADOBE_PATH) ] ; then $(ADOBE_PATH) notes.$(TEX_FILE:.tex=.pdf); fi &
 
 .PHONY: pdfshow pdf $(TEX_FILE)
