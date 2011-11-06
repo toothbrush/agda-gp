@@ -53,6 +53,10 @@
 
 \begin{document}
 \maketitle
+\begin{frame}
+    \tableofcontents
+\end{frame}
+\section{Motivation}
 \begin{frame}{Motivation}
 \begin{itemize}
 \item Spine : List of signatures
@@ -63,20 +67,22 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-    Similarity:
+\section{Similarity}
+\begin{frame}{Similarity}
 
+    Representation of $\mathbb{N}$ in Regular vs. Spine
 \begin{spec}
+datatype : {a : Set} -> Type a -> List (Signature a)
+datatype NatR  = Sig zero ∷ (Sig suc · NatR) ∷ []
+
 NatRep : Code
 NatRep = U ⊎ I
-
-datatype : {a : Set} -> Type a -> List (Signature a)
-datatype NatR  = (Sig zero) ∷ ((Sig suc · NatR) ∷ [])
-\end{spec}\nt{we modified this, though}
-
+\end{spec}
+\nt{we modified this, though (the rec/con construction)}
+\nt{Point out how NatR is the recursive position}
 \end{frame}
 
-
+\section{Problem}
 \begin{frame}{Problem}
 \begin{itemize}
 \item Explore the extent of the similarity
@@ -85,6 +91,7 @@ datatype NatR  = (Sig zero) ∷ ((Sig suc · NatR) ∷ [])
 \item Possible (generic) conversion of codes and values between LIGD and Spine
 \end{itemize}
 \end{frame}
+\section{Method}
 \begin{frame}{Method}
 \begin{itemize}
 \item Embed Spine and LIGD in Agda
@@ -136,6 +143,7 @@ L⟦ rprod r₁ r₂ ⟧ = L⟦ r₁ ⟧ × L⟦ r₂ ⟧
 L⟦ rtype t _ _ ⟧ = t
 \end{spec}
 \end{frame}
+\section{Problem with LIGD}
 \begin{frame}{Problem with LIGD}
 \begin{itemize}
 \item Wanted function of type |convert : Type a → LCode|
@@ -147,7 +155,7 @@ rList ra = RType isoList (RSum RUnit (RProd ra (rList ra)))
 
 makeProdRep : {a : Set} -> (b : Signature a) -> Rep (makeProd b)
 makeProdRep (Sig _ · (ListR y)) with makeRep y
-... | ra = {!!}
+... | ra = {!rList !}
 \end{spec}
 \begin{itemize}
     \item In retrospect might be solvable
@@ -155,8 +163,9 @@ makeProdRep (Sig _ · (ListR y)) with makeRep y
 \end{itemize}
 \end{frame}
 
+\section{Regular}
 \begin{frame}{Regular}
-Our Regular universe
+    Our Regular universe\nt{Marcelo's bit starts here}
 
 \begin{spec}
 data Code : Set where
@@ -194,7 +203,7 @@ To start with, convert representations.
 -- Convert a signature to a code
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
-makeProd (Sig _ · con , t) = K $ interpretSTRep t
+makeProd (Sig _ · con , t) = K ( interpretSTRep t )
 makeProd (Sig _ · rec , t) = I
 makeProd (s · con , t) = makeProd s ⊗ K (interpretSTRep t)
 makeProd (s · rec , t) = makeProd s ⊗ I
@@ -209,6 +218,7 @@ convert : {A : Set} → Type A → Code
 convert tyA = makeSum (sigList tyA)
 \end{spec}
 \end{frame}
+\section{Spine}
 \begin{frame}{Lists of signatures}
 \begin{itemize}
 \item User defined spine representation of datatypes
@@ -234,6 +244,8 @@ S→R tyA s = from tyA (fromSpine s)
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
 R→S tyA r = toSpine tyA (to tyA r)
 
+from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to (list a) [] = < inj₁ tt >
 to (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | to (list a) xs
@@ -251,14 +263,32 @@ interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
 \nt{Mention that only case for list is given}
 \nt{interpretSTRep is the interpretation function}
 \end{frame}
+\section{Contribution}
 \begin{frame}{Contribution}
 \begin{itemize}
 \item We have shown an injective embedding of Spine into Regular
-\item Automatic conversion of representations 
+\item Automatic conversion of representations
 \end{itemize}
 \end{frame}
+\section{Relate work}
 \begin{frame}{Related Work}
+\begin{itemize}
+\item Formally comparing approaches to datatype-generic programming, using Agda 
+\end{itemize}
+http://dreixel.net/research/pdf/fcadgpua_pres_dtp11.pdf
 \end{frame}
+\section{Critical Analysis}
 \begin{frame}{Critical Analysis}
+    \begin{itemize}
+        \item We have shown an embedding of the Spine universe inside that of Regular 
+        \item This was done by converting Spine codes to Regular codes
+        \item With the from and to functions, we then converted between Regular
+              representations of spine values and concrete Agda values
+        \item \texttt{from} can be seen to be a left-inverse of \texttt{to}
+    \end{itemize}
+    \begin{itemize}
+        \item Eliminate pattern-matching in the from and to functions.
+        \item Augment the universe of LIGD to allow Dynamic.
+    \end{itemize}
 \end{frame}
 \end{document}
