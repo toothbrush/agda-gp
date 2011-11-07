@@ -34,6 +34,21 @@
 
 \section{Introduction}
 
+Datatype generic programming is a technique which can save a lot of effort
+when defining functions on data, the idea being that you define a function once,
+to work on values in a common representation format, then define functions which
+translate specific datatypes from and to this intermediate format. The problem is,
+even though many libraries use similar representation types (such as the sum-of-products view),
+not much work has been done to make these representations interchangeable. This project aims
+to discover similarities between representation types and explore the possibilities of
+formalising these structural similarities, and possibly even exploiting them to create automatic
+value and datatype representation conversion.
+
+This way, once a user has defined a function using the representation of one generic programming library,
+the option might exist to use automatic translation functions to be able to run
+this function on other generic values possibly defined using some other generic programming library's
+generic view.
+
 
 \section{Aim}
 The aim of the project was to show an embedding relation between
