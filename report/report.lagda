@@ -80,6 +80,32 @@ into problems which are detailed later.
 
 \section{The Universes}
 
+Initially we decided to explore the similarity between LIGD (which uses the sum-of-products view \dots) %TODO: insert reference
+and the spine view, which consists of lists of signatures. Consider for example the representation of the common
+Haskell-like |List| data structure in both libraries. In Spine:
+
+\begin{code}
+listRep-S : {a : Set} -> Type a -> List (Signature a)
+listRep-S a = Sig [] ∷ [ Sig (_∷_) · (par , a) · (rec , (listRep-S a)) ]
+\end{code}
+
+\dots and in LIGD:
+
+\begin{code}
+listRep-L : LCode → LCode
+listRep-L a = U ⊎ (a × (listRep-L a))
+\end{code}
+
+One can easily see that the products in the sum-of-products view correspond to
+the parameters of each constructor, which are chained together using the |_·_| operator
+in Spine, and that sums correspond to alternatives of a datatype, which are modelled using
+elements of the signature list in the Spine view. Informally, one could replace list concatenation with
+sums, and the  |_·_| operator with products to obtain an LIGD representation of a datatype, from a Spine
+representation.
+
+The first step to exploring the similarities between these representational styles is of course to embed
+them into Agda. This embedding is discussed in the following section.
+
 \subsection{LIGD}
 
 LIGD is a Haskell datatype generic programming library based on the familiar sum-of-products
@@ -176,11 +202,6 @@ a |Signature| corresponds to one of the datatype's constructors. A |Signature|, 
 above, consists of the constructor itself, along with representations for each of it's parameters,
 separated by the |_·_| operator. See for example the representation of the well-known |List| data type
 in Spine.
-
-\begin{code}
-listRep-S : {a : Set} -> Type a -> List (Signature a)
-listRep-S a = Sig [] ∷ [ Sig (_∷_) · (par , a) · (rec , (listRep-S a)) ]
-\end{code}
 
 Finally, the |sigList| function is a function which the user of the library should
 provide, giving the list of signatures for each supported type in the Spine universe. This is

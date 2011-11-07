@@ -191,6 +191,7 @@
 %format map-cong      = "\id{map\ensuremath{_\text{cong}}}"
 %format map-id        = "\id{map\ensuremath{_\text{id}}}"
 %format listRep-S     = "\id{listRep\ensuremath{_\text{S}}}"
+%format listRep-L     = "\id{listRep\ensuremath{_\text{L}}}"
 %format sigList       = "\id{sigList}"
 %format map-∘         = "\id{map\ensuremath{_{∘}}}"
 %format id            = "\id{id}"
