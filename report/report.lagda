@@ -253,5 +253,12 @@ all Spine representations into Regular. We can, however, translate a subset of S
 
 
 
+    \begin{thebibliography}{9}
+
+        \bibitem{loh}
+            L{\"o}h, A. and Magalh{\~a}es, J.P.,
+            \emph{Formally comparing approaches to datatype-generic programming, using Agda} (talk).
+            2011.
+    \end{thebibliography}
 
 \end{document}
