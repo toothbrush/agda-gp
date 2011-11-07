@@ -226,7 +226,8 @@ problems. Firstly the defined function does not terminate, something
 that wouldn't have been a problem in Haskell. This can be disabled,
 but for later defining conversion of values, we needed the code
 conversion functions in type signatures, and in those, all expressions
-must terminate.
+must terminate (since Agda evaluates all the functions in the type signature
+to normal form, to decide if a function type checks).
 
 We instead chose to implement a conversion from Spine to Regular,
 since in Regular, recursion is modeled by an extra parameter. This
@@ -234,13 +235,23 @@ allowed all functions to be terminating. In Regular one models the
 pattern functor, then applies the least fixed-point operator |μ| which
 results in a representation which is isomorphic to the represented
 type.
-\section{Regular in Agda}
 
-\section{Spine in Agda}
-
-
-\section{The embedding}
+\section{The embedding and conversion functions}
 
 Spine has support for existential types, since it allows arbitrary parameters to be used in its |Signature| type. Therefore, it's not possible to translate
 all Spine representations into Regular. We can, however, translate a subset of Spine into Regular, as is done in the following code example.
+
+
+\section{Related work}
+
+
+\section{Our contribution}
+
+\section{Discussion}
+
+\section{Conclusion}
+
+
+
+
 \end{document}
