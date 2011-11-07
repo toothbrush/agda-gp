@@ -73,11 +73,6 @@ choice for the sum of products view. We attempted to convert from
 Spine to LIGD and also from LIGD to Spine, where in both cases we ran
 into problems which are detailed later.
 
-%% We have found that any Regular representation can be translated into a
-%% Spine representation, but not all Spine representations can be
-%% translated into Regular (in particular existential types pose a
-%% problem in Regular).
-
 \section{The Universes}
 
 Initially we decided to explore the similarity between LIGD (which uses the sum-of-products view \dots) %TODO: insert reference
