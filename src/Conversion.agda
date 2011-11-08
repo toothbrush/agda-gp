@@ -12,7 +12,6 @@ open import Data.Product
 open import Data.Unit public using (tt)
 open import Data.Sum
 
--- open import Relation.Nullary.Decidable 
 open import Relation.Binary.Core public using (_≡_; refl)
 
 open import Regular
@@ -23,9 +22,9 @@ open import Util
 -- We know that A ≡ B
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
-makeProd (Sig _ · con , t) = K $ interpretSTRep t
+makeProd (Sig _ · con , t) = K $ decodeType t
 makeProd (Sig _ · rec , t) = I
-makeProd (s · con , t) = makeProd s ⊗ K (interpretSTRep t)
+makeProd (s · con , t) = makeProd s ⊗ K (decodeType t)
 makeProd (s · rec , t) = makeProd s ⊗ I
 
 -- Convert a list of signatures to a code
@@ -38,22 +37,39 @@ convert : {A : Set} → Type A → Code
 convert tyA = makeSum (sigList tyA)
 
 -- After 4 hours banging head finally managed to create the proof
-interpretSTRep_≡A : {A : Set} -> (ty : Type A) → interpretSTRep ty ≡ A
-interpretSTRep nat ≡A  = refl
-interpretSTRep bool ≡A = refl
-interpretSTRep (list a) ≡A with interpretSTRep a | interpretSTRep a ≡A
+decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+decodeType nat ≡A  = refl
+decodeType bool ≡A = refl
+decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
+
+applyParams : {A : Set} → (sig : Signature A) → ⟦ makeProd sig ⟧ A → A
+applyParams (Sig v) tt = v
+applyParams (Sig f · con , v) k with decodeType v ≡A 
+... | j = f {!!}
+applyParams (Sig y · rec , proj₂) k = {!!}
+applyParams (y · y' · y0) k = {!!} 
+
+-- We need to find a way of relating the Signature A with the Type A
+chooseSig : {A : Set}{tyA : Type A} → List⁺ (Signature A) → μ (convert tyA) → A
+chooseSig [ sig ] < y > with y 
+... | x = applyParams sig {!!}
+chooseSig (x ∷ xs) < y > = {!!}
 
 -- Naturally following the proof.
 -- Main> to (list nat) z1
 -- 0 ∷ []
+to' : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+to' tyA val with sigList tyA
+... | lSig = chooseSig lSig val
+
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to nat  < inj₁ tt > = zero 
 to nat  < inj₂ n >  = suc $ to nat n
 to bool < inj₁ tt > = true
 to bool < inj₂ tt > = false
 to (list a) < inj₁ tt > = []
-to (list a) < inj₂ (x , xs) > with interpretSTRep a | interpretSTRep a ≡A | to (list a) xs
+to (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | to (list a) xs
 ... | p | refl | z = x ∷ z 
 
 -- Main> from (list nat) (0 ∷ [])
@@ -64,7 +80,7 @@ from bool false = < inj₂ tt >
 from nat zero = < inj₁ tt >
 from nat (suc n) = < inj₂ (from nat n) >
 from (list a) [] = < inj₁ tt >
-from (list a) (x ∷ xs) with interpretSTRep a | interpretSTRep a ≡A | from (list a) xs
+from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
 -- Main S→R bool (Con false) 
