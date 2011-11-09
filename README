@@ -1,22 +1,16 @@
-attempts:
+------------------------------------------
+Embedding of Spine into Regular in AGDA :)
 
-- tried to give a spine representation of spine, but later realised that sum is
-  achieved by a list of Sigs in spine.
-- attempting to convert a [Sig] into LIGD representation. Possibly generating the EP.
-- defining spine and ligd in agda. not very interesting, but something time was spent on.
+Authors: Justin Paston Cooper <paston.cooper@gmail.com>
+         Marcelo Sousa        <dipython@gmail.com>
+         Paul van der Walt    <paul@denkerd.org>
 
-- spine == sum of products, except for existential types. 
-- by converting to regular / ligd you lose information, since spine keeps track of the constructors
+This project was realized in the context of the course
+Generic Programming between September and November of 2011
+at Utrecht University. 
 
-
-
-TODO:
-
-- write about ligd and spine: comparison / similarities and possible translation
-- why is spine supposedly bigger than ligd?
-- Tidy up LIGDAttempt using library functions, also LIGDAndSpine
-Notes:
-
-I think that we should mention in the report that the addition of
-Type? is purely to help Agda, and that any instance of type being
-converted from is recursive, and that any other is constant.
+FileMap:
+old - Because research is full of attempts :)
+presentation - Slides for the presentation
+report - Report (Please check it for more information about the project)
+src - Agda code that works :D
