@@ -241,11 +241,19 @@ After running into the problems mentioned above, we decided to switch to Regular
 
 \section{Related work}
 
+Other work has been done regarding exploring and formalising relations between different generic datatype views
+(L\"oh and Magalh\~aes, \cite{loh}), where injections from Regular to other libraries such as PolyP, Multirec, Indexed and Instant
+Generics were presented. This work was also in Agda.
+
+As one can see Figure \ref{fig:conversions}, the contribution of this project dovetails nicely with that of L\"oh and Magalh\~aes.
+Namely, this project provides an injection from Spine into Regular, which in turn already has injections to other libraries. It
+is interesting to note that this project investigated the Spine view, as opposed to the more common sum-of-products view, on which all
+the libraries investigated by L\"oh and Magalh\~aes are based.
 \begin{figure}[h]
     \begin{center}
         \includegraphics[width=\textwidth]{conversions}
     \end{center}
-    \caption{Relation of embeddings of various libraries.}
+    \caption{Relation of embeddings of various libraries. The dotted line indicates previous work. \cite{loh}}
     \label{fig:conversions}
 \end{figure}
 
