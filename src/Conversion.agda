@@ -19,7 +19,6 @@ open import Spine
 open import Util
 
 -- Convert a signature to a code
--- We know that A ≡ B
 makeProd : {B : Set} → Signature B → Code
 makeProd (Sig _) = U
 makeProd (Sig _ · con , t) = K $ decodeType t
@@ -44,9 +43,8 @@ decodeType bool ≡A = refl
 decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 
--- Naturally following the proof.
--- Main> to (list nat) z1
--- 0 ∷ []
+-- Decode function of a regular value whose type was been
+-- calculated through a Spine type
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to nat  < inj₁ tt > = zero 
 to nat  < inj₂ n >  = suc $ to nat n
@@ -56,8 +54,8 @@ to (list a) < inj₁ tt > = []
 to (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | to (list a) xs
 ... | p | refl | z = x ∷ z 
 
--- Main> from (list nat) (0 ∷ [])
--- < inj₂ (0 , < inj₁ tt >) >
+-- Encode function that produces a regular value correspondent
+-- to a Agda value produced by fromSpine.
 from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
 from bool true = < inj₁ tt >
 from bool false = < inj₂ tt >
@@ -67,14 +65,10 @@ from (list a) [] = < inj₁ tt >
 from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
 ... | p | refl | z = < inj₂ (x , z) >
 
--- Main S→R bool (Con false) 
--- < inj₂ tt >
--- Main> S→R (list nat) (Con _∷_ :<>: (zero :> nat) :<>: ([] :> (list nat)))
--- < inj₂ (0 , < inj₁ tt >) > 
+-- Convert a spine value into a regular value
 S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
 S→R tyA s = from tyA (fromSpine s) 
 
--- Main> R→S (list nat) (< inj₂ (0 , < inj₁ tt >) >)
--- Con _∷_ :<>: 0 :> nat :<>: [] :> list nat
+-- Convert a regular value into a spine value
 R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
 R→S tyA r = toSpine tyA (to tyA r)

@@ -199,6 +199,20 @@ above, consists of the constructor itself, along with representations for each o
 separated by the |_·_| operator. See for example the representation of the well-known |List| data type
 in Spine.
 
+We can easily define the functions |fromSpine| and |toSpine| that respectively decode and encode a |Spine| value.
+
+\begin{code}
+fromSpine : {a : Set} -> Spine a -> a
+fromSpine (Con c) = c
+fromSpine (f :<>: (x :> _)) = (fromSpine f) x
+
+toSpine : {a : Set} -> Type a -> a -> Spine a
+toSpine nat zero  = Con zero
+toSpine nat (suc n) = Con suc :<>: (n :> nat)
+toSpine bool b = Con b
+toSpine (list a) [] = Con []
+toSpine (list a) (_∷_ x xs) = Con _∷_ :<>: (x :> a) :<>: (xs :> list a) 
+\end{code}
 Finally, the |sigList| function is a function which the user of the library should
 provide, giving the list of signatures for each supported type in the Spine universe. This is
 a convenient and uniform method of storing the representations as presented above.
@@ -236,9 +250,69 @@ Using regular allowed the conversion functions we defined later, to terminate.
 
 \section{Spine to Regular}
 
-After running into the problems mentioned above, we decided to switch to Regular for our sum-of-products view.
-
-
+After running into the problems mentioned above, we decided to switch to Regular for our sum-of-products view. \\
+We start by defining the function convert that converts a |Spine| type into a |Regular| representation of that |Spine| type by using the list of |Signature|s:
+\begin{code}
+convert : {A : Set} → Type A → Code
+convert tyA = makeSum (sigList tyA)
+\end{code}
+The function convert uses the function makeSum which implements the conversion method described in Section 3. 
+\begin{code}
+makeSum : {A : Set} → List⁺ (Signature A) → Code
+makeSum [ x ] = makeProd x
+makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
+\end{code}
+Given an non-empty list of |Signature| A every |Signature| corresponds to a product of the sum.
+\begin{code}
+makeProd : {B : Set} → Signature B → Code
+makeProd (Sig _) = U
+makeProd (Sig _ · (con , t)) = K $ decodeType t
+makeProd (Sig _ · (rec , t)) = I
+makeProd (s · (con , t)) = makeProd s ⊗ K (decodeType t)
+makeProd (s · (rec , t)) = makeProd s ⊗ I
+\end{code}
+makeProd translates a |Signature| in a |Regular| code by pattern matching on the |Signature|. If the constructor does not have arguments we produce |U|. In the case of the constructor has one argument then we pattern match on the pair |Type? × Type b|: a parameter is tagged with |con| and a recursive position with |rec| respectively corresponding to |K| and |I| in |Regular|. Since |_∙_| is left associative if the constructor has more than one argument then we pattern match on the pair to identify if it is a parameter or a recursive position and construct the product by recursively calling makeProd on the left arguments. \\
+Now that we have a generic function to convert a list of signature representing a |Spine| type into a |Regular| representation we want to define functions that given a |Spine| type and a |Spine| value converts that value its |Regular| value:
+\begin{code}
+S→R : {A : Set} → (tyA : Type A) → Spine A → μ (convert tyA)
+S→R tyA s = from tyA (fromSpine s) 
+\end{code}
+and also the inverse:
+\begin{code}
+R→S : {A : Set} → (tyA : Type A) → μ (convert tyA) → Spine A
+R→S tyA r = toSpine tyA (to tyA r)
+\end{code}
+Once we have the |fromSpine| and |toSpine| functions that respectively decode and encode a |Spine| value we need to define the functions |from| and |to|:
+\begin{code}
+from : {A : Set} → (tyA : Type A) → A → μ (convert tyA)
+from bool true = < inj₁ tt >
+from bool false = < inj₂ tt >
+from nat zero = < inj₁ tt >
+from nat (suc n) = < inj₂ (from nat n) >
+from (list a) [] = < inj₁ tt >
+from (list a) (x ∷ xs) with decodeType a | decodeType a ≡A | from (list a) xs
+... | p | refl | z = < inj₂ (x , z) >
+\end{code}
+The function |from| encodes a |Regular| value representing a |Spine| value that was decoded to a normal Agda value by |fromSpine|. In the case of |list| we need to construct a proof that the type parameter of the |list| is the same as the one we are trying to encode. The proof is constructed by the function |decodeType_≡A|:
+\begin{code}
+decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
+decodeType nat ≡A  = refl
+decodeType bool ≡A = refl
+decodeType (list a) ≡A with decodeType a | decodeType a ≡A
+... | x | refl = refl
+\end{code}
+The proof is trivial except for the |list| case where we also need to construct a proof for the parameter a.\\
+The function |to| decodes a |Regular| value from a |Regular| code that was produced by |convert|, i.e. a |Regular| value for which we know that there is a correspondent |Spine| value:
+\begin{code}
+to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
+to nat  < inj₁ tt > = zero 
+to nat  < inj₂ n >  = suc $ to nat n
+to bool < inj₁ tt > = true
+to bool < inj₂ tt > = false
+to (list a) < inj₁ tt > = []
+to (list a) < inj₂ (x , xs) > with decodeType a | decodeType a ≡A | to (list a) xs
+... | p | refl | z = x ∷ z 
+\end{code}
 \section{Related work}
 
 Other work has been done regarding exploring and formalising relations between different generic datatype views
