@@ -17,6 +17,7 @@
 
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{graphicx}
 \title{Isomorphism between Regular and Spine in Agda}
 \date{\today}
 \author{Justin Paston-Cooper\footnote{\url{paston.cooper@@gmail.com}} \and Marcelo Sousa\footnote{\url{dipython@@gmail.com}} \and Paul van der Walt\footnote{\url{paul@@denknerd.org}}}
@@ -25,35 +26,32 @@
 \maketitle
 
 \begin{abstract}
-    This report details our efforts in embedding Spine and Regular (two Haskell generic programming
-    libraries with different generic views) into Agda, a dependently typed programming language. There is also
-    an automatic conversion function between representations in the two views, and a partial isomorphism.
-    Furthermore, LIGD (another GP library) is looked at, and an attempt is made to embed it in Agda, and pointers
-    for further research are given.
+    This report details our efforts in embedding generic datatype
+    systems into Agda. We present a conversion function between representations
+    in different views and we show a structural relation between Spine and
+    Regular.
 \end{abstract}
 
 \section{Introduction}
 
-Datatype generic programming is a technique which can save a lot of effort
-when defining functions on data, the idea being that you define a function once,
-to work on values in a common representation format, then define functions which
-translate specific datatypes from and to this intermediate format. The problem is,
-even though many libraries use similar representation types (such as the sum-of-products view),
-not much work has been done to make these representations interchangeable. This project aims
-to discover similarities between representation types and explore the possibilities of
-formalising these structural similarities, and possibly even exploiting them to create automatic
-value and datatype representation conversion.
+The idea of datatype geeneric programming is that to define a function, a user defines a function once
+over a set of building blocks of a system, and then the function works for all types which are representable
+in that system. The system provides methods of converting to and from a normal value, say in Agda, to this representation, at
+which point, the defined function can be applied.
+Even though many libraries use similar representation types (such as the sum-of-products view),
+not much work has been done to make these representations interchangeable. The aim of the project was
+to discover similarities between generic datatype systems, to formally describe them and to create generic
+value and datatype representation conversions.
 
-This way, once a user has defined a function using the representation of one generic programming library,
-the option might exist to use automatic translation functions to be able to run
-this function on other generic values possibly defined using some other generic programming library's
+In this way, once a user has defined a function using the representation of one generic programming library,
+the option may exist to use automatic translation functions for running
+this function on other values defined using another generic programming library's
 generic view.
-
 
 \section{Aim}
 The aim of the project was to show an embedding relation between
 algebraic datatype representation systems such as LIGD, Regular and
-Spine. Below there are presented embeddings of the respective
+Spine. Below are presented embeddings of the respective
 universes for each of the listed systems.
 
 To show an embedding of a system A into a system B, one must define a
@@ -75,12 +73,13 @@ into problems which are detailed later.
 
 \section{The Universes}
 
-Initially we decided to explore the similarity between LIGD (which uses the sum-of-products view \dots) %TODO: insert reference
-and the spine view, which consists of lists of signatures. Consider for example the representation of the common
-Haskell-like |List| data structure in both libraries. In Spine:
+As stated, we initially decided to explore the similarity between LIGD, which uses the sum-of-products view,
+and the spine view, which consists of lists of signatures, where a single signature contains a constructor
+along with the types of its parameters. Consider for example the representation of the common
+Haskell-like |List a| data structure in both libraries. In Spine:
 
 \begin{code}
-listRep-S : {a : Set} -> Type a -> List (Signature a)
+listRep-S : {a : Set} → Type a → List (Signature a)
 listRep-S a = Sig [] ∷ [ Sig (_∷_) · (par , a) · (rec , (listRep-S a)) ]
 \end{code}
 
@@ -91,21 +90,21 @@ listRep-L : LCode → LCode
 listRep-L a = U ⊎ (a × (listRep-L a))
 \end{code}
 
-One can easily see that the products in the sum-of-products view correspond to
-the parameters of each constructor, which are chained together using the |_·_| operator
-in Spine, and that sums correspond to alternatives of a datatype, which are modelled using
-elements of the signature list in the Spine view. Informally, one could replace list concatenation with
+It is intuitive that the terms of a single product in the sum-of-products view correspond to
+the parameters of a constructor, which are chained together using the |_·_| operator
+in Spine. It is also intuitive that the terms in sums correspond to the alternatives of a datatype, which are modelled using
+elements of the signature list in the Spine view. In other words, one can replace list concatenation with
 sums, and the  |_·_| operator with products to obtain an LIGD representation of a datatype, from a Spine
 representation.
 
-The first step to exploring the similarities between these representational styles is of course to embed
-them into Agda. This embedding is discussed in the following section.
+The first step in exploring the similarities between these representational styles is to embed
+them into Agda. This embedding is detailed in the following section.
 
 \subsection{LIGD}
 
-LIGD is a Haskell datatype generic programming library based on the familiar sum-of-products
-view, which we have modeled in Agda. It relies on explicit recursion, and the universe (which includes
-the interpretation function to convert a code into a real Agda type) is presented below.
+LIGD is a Haskell datatype generic programming library encorporating the sum-of-products
+view, which we have modelled in Agda. It relies on explicit recursion and a universe which includes
+an interpretation function to convert a code, representing a type, into an Agda type.
 
 \begin{code}
 data LCode : Set where
@@ -123,15 +122,15 @@ L⟦ rprod r₁ r₂ ⟧    = L⟦ r₁ ⟧ × L⟦ r₂ ⟧
 L⟦ rtype t _ _ ⟧    = t
 \end{code}
 
-Note that the |rtype| constructor is useful for embedding any user-defined Agda type into
-the LIGD universe, but that this does make for example decidable equality functions tricky.
+The |rtype| constructor is useful for embedding a user-defined Agda type into
+the LIGD universe. This can make decideable equality functions tricky.
 
 \subsection{Regular}
 
-As we will explain later on, problems were encountered as a result of the deep recursion which
+As detailed later, problems were encountered as a result of the deep recursion which
 LIGD uses, along with the termination checking property of Agda. As a result of this, it was decided
 to switch to an embedding of the Regular library in Agda, since it makes use of shallow recursion, along
-with $\mu$, the fixed-point operator.
+with |μ|, the fixed-point operator.
 
 Regular is quite similar to LIGD, except for the addition of the |I| constructor, which marks a recursive
 position of a constructor. The interpretation function |⟦_⟧_| is unsurprising.
@@ -156,7 +155,7 @@ data μ_ (c : Code) : Set where
 
 \end{code}
 
-Since $\mu$ isn't included inside the universe, Regular cannot have more than
+Since $μ$ isn't included inside the universe, Regular cannot have more than
 one recursive position, whereas Spine can. This is something we take for
 granted, since we're modelling a limited version of Spine, such that the
 universes of Spine and Regular (or at least our restricted versions of them)
@@ -173,21 +172,21 @@ parameters or recursive positions, because we weren't able to define a function 
 on types.
 
 \begin{code}
-data Type : Set -> Set where
+data Type : Set → Set where
   bool  : Type Bool
   nat   : Type ℕ
-  list  : {a : Set} -> Type a -> Type (List a)
+  list  : {a : Set} → Type a → Type (List a)
 
-data Spine : Set -> Set where
-  Con       : ∀ {a} -> a -> Spine a
-  _:<>:_    : ∀ {a b} -> Spine (a -> b) -> Typed a -> Spine b
+data Spine : Set → Set where
+  Con       : ∀ {a} → a → Spine a
+  _:<>:_    : ∀ {a b} → Spine (a → b) → Typed a → Spine b
 
 data Type? : Set where
   par : Type?
   rec : Type?
 
 data Signature a : Set where
-  Sig : a -> Signature a
+  Sig : a → Signature a
   _·_ : {b : Set} → Signature (b → a) → Type? × Type b → Signature a
 
 \end{code}
@@ -203,7 +202,7 @@ provide, giving the list of signatures for each supported type in the Spine univ
 a convenient and uniform method of storing the representations as presented above.
 
 \begin{code}
-sigList : {a : Set} -> Type a -> List⁺ (Signature a)
+sigList : {a : Set} → Type a → List⁺ (Signature a)
 sigList bool = Sig true ∷ [ Sig false ]
 sigList nat  = Sig zero ∷ [ Sig suc · (rec , nat) ]
 sigList (list a) = Sig [] ∷ [ Sig (_∷_) · (par , a) · (rec , list a) ]
@@ -236,18 +235,128 @@ pattern functor, then applies the least fixed-point operator |μ| which
 results in a representation which is isomorphic to the represented
 type.
 
-\section{The embedding and conversion functions}
-
-Spine has support for existential types, since it allows arbitrary parameters to be used in its |Signature| type. Therefore, it's not possible to translate
-all Spine representations into Regular. We can, however, translate a subset of Spine into Regular, as is done in the following code example.
-
 
 \section{Related work}
 
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{conversions}
+    \end{center}
+    \caption{Relation of embeddings of various libraries.}
+    \label{fig:conversions}
+\end{figure}
 
 \section{Our contribution}
+We have claimed an injective embedding of the Spine system into the
+Regular System. Our embedding is carried out by \texttt{convert},
+which takes a Spine type representation and gives the corresponding
+regular representation based on the signature list, and by the value
+conversion functions |S→R| and |R→S|.
 
-\section{Discussion}
+The injectivity of this embedding can be seen as follows. The function
+|S→R| is of type |{a : Set} → (tyA : Type a) → Spine a → μ
+(convert tyA)|. The function |R→S| is of type |{a : Set} → (tyA :
+Type a) → μ (convert tyA) → Spine a|. For a single |Type a|,
+|S→R| and |R→S| are inverses of each other, thus showing them both
+to be bijections. However, the union of all codomains of |S→R| over
+all |Type a|, the set of all Regular representations of Spine values,
+is only a proper subset of the whole Regular value universe. We
+therefore see that |S→R| as an injective embedding of the Spine value
+universe into that of Regular, with |R→S| being its left-inverse.
+
+
+
+\section{Critical Analysis}
+
+\subsection{An Addition to the Original Spine System}
+We made an addition the previously standing definition of Signature in
+Spine. In our version, type parameters are tagged with a value of
+|Type?|, indicating whether or not that position in the signature is a
+parameter or recursive. Below is given a comparison between the
+previous version of the signature list for (list a), and our current
+version.
+
+\begin{code}
+sigList (list a) [] = Sig [] ∷ (Sig (∷) · a · list a) ∷ []
+\end{code}
+
+\begin{code}
+sigList (list a) [] = Sig [] ∷ (Sig (∷) · (par , a) · (rec , list a)) ∷ []
+\end{code}
+This tagging is required in the making of the product type
+corresponding to a single signature, which is implemented by the
+function |makeProd|. Given a |(par , a)|, it gives a |K| code and
+given a |(rec , list a)|, it gives an |I| code. 
+
+We had previously tried to define a |makeProd| function with the type
+|{a : Set} → Type a → Signature a → Code|. In deconstructing the
+given signature, any type matching the given |Type a| value would be
+seen as the recursive position, and any other type would be seen as a
+parameter. In trying to define |makeProd| in this way, we ran into
+problems in checking equalities of the Spine type representations, and
+we had many more issues with the Agda type checker. We were not able
+to complete such a definition in the time provided, but it may be
+possible with further work.
+
+
+\subsection{Further Genericity of |from| and |to|}
+The |convert| function is generic in the sense that its definition is
+not dependent the currently defined Spine universe of types, which
+could be extended to include further algebraic datatypes. For any
+future extension of the type universe, with an appropriate extension
+of |sigList|, it would continue to work. However, the |from| and |to|
+functions are not generic in this sense. Their pattern matching
+depends on knowledge of the currently defined type universe, and if a
+user were to make an extension to the universe, the |from| and |to|
+functions would also need to be changed.
+
+In fact, all the information which |from| and |to| should need is in
+the signature lists. We made an attempt to define the functions to
+depend only on the signature lists, but again we ran into problems
+with the Agda type checker. Below is presented a mock of how we would
+like to define the |to| function.
+
+\begin{spec}
+applyParams : {a : Set} → (sig : Signature a) → ⟦ makeProd sig ⟧ a → a
+\end{spec}   
+\begin{spec}
+chooseSig : {a : Set} → List⁺ (Signature a) → μ (convert tyA) → A
+chooseSig (sig ∷ rest)          < inj₁ val > = applyParams sig val
+chooseSig [single]              < inj₂ val > = applyParams single val
+chooseSig (_ ∷ rest)            < inj₂ val > = chooseSig rest val
+\end{spec}   
+\begin{spec}
+to : {a : Set} → (tyA : Type a) → μ (convert tyA) → A
+to tyA val with (sigList tyA)
+... | [single]     = applyParams single val
+... | multiple     = chooseSig multiple val
+\end{spec}
+The |to| function calls |chooseSig| when |convert tyA| would have
+returned a proper sum, which is exactly when there is more than one
+signature in the signature list. Otherwise it directly calls
+|applyParams| with the given value.
+
+The function |chooseSig| finds the signature that corresponds to the
+type of the given value, which corresponds to one of the terms in the
+sum given by |convert tyA|. If a value is found inside an |inj₁|, then
+by definition of |convert|, the value should correspond to the first
+signature in the list. The only case in which a value may correspond
+to a signature in a one-element list is when it is found inside an
+|inj₂|, which is reflected by the second pattern matching. When there
+are at least two signatures and an |inj₂|, then |chooseSig| must call
+itself again with the rest of the signatures, as reflected by the
+third pattern matching.
+
+The function |chooseSig| works by going through the list of signatures
+until it reaches either a value inside an |inj₁|, at which point the
+first signature in the list corresponds to the value, or when only one
+element in the list is left and it finds the value inside an
+|inj₂|. This value is by definition of type |⟦ makeProd sig ⟧ a|, and
+this is reflected in the type signature of |applyParams|. A working
+definition of |applyParams| would deconstruct the given product, and
+give the terms as arguments to the constructor found inside the given
+signature.
+
 
 \section{Conclusion}
 
