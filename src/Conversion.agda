@@ -36,33 +36,17 @@ makeSum (x ∷ xs) = makeProd x ⊕ makeSum xs
 convert : {A : Set} → Type A → Code
 convert tyA = makeSum (sigList tyA)
 
--- After 4 hours banging head finally managed to create the proof
+-- Proof that given an Spine type A its interpretation is 
+-- the type A that we initially wanted to represent in Spine
 decodeType_≡A : {A : Set} -> (ty : Type A) → decodeType ty ≡ A
 decodeType nat ≡A  = refl
 decodeType bool ≡A = refl
 decodeType (list a) ≡A with decodeType a | decodeType a ≡A
 ... | x | refl = refl
 
-applyParams : {A : Set} → (sig : Signature A) → ⟦ makeProd sig ⟧ A → A
-applyParams (Sig v) tt = v
-applyParams (Sig f · con , v) k with decodeType v ≡A 
-... | j = f {!!}
-applyParams (Sig y · rec , proj₂) k = {!!}
-applyParams (y · y' · y0) k = {!!} 
-
--- We need to find a way of relating the Signature A with the Type A
-chooseSig : {A : Set}{tyA : Type A} → List⁺ (Signature A) → μ (convert tyA) → A
-chooseSig [ sig ] < y > with y 
-... | x = applyParams sig {!!}
-chooseSig (x ∷ xs) < y > = {!!}
-
 -- Naturally following the proof.
 -- Main> to (list nat) z1
 -- 0 ∷ []
-to' : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
-to' tyA val with sigList tyA
-... | lSig = chooseSig lSig val
-
 to : {A : Set} → (tyA : Type A) → μ (convert tyA) → A
 to nat  < inj₁ tt > = zero 
 to nat  < inj₂ n >  = suc $ to nat n
