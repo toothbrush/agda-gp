@@ -48,6 +48,8 @@ the option may exist to use automatic translation functions for running
 this function on other values defined using another generic programming library's
 generic view.
 
+The full source code belonging to the presented work can be downloaded from the repository. \cite{source}
+
 \section{Aim}
 The aim of the project was to show an embedding relation between
 algebraic datatype representation systems such as LIGD, Regular and
@@ -222,18 +224,19 @@ rList RA = rsum runit (rprod RA (rList RA))
 Note here that the recursive call is equal to the left hand side of
 the definition. Because of this, we ran into termination
 problems. Firstly the defined function does not terminate, something
-that wouldn't have been a problem in Haskell. This can be disabled,
-but for later defining conversion of values, we needed the code
-conversion functions in type signatures, and in those, all expressions
-must terminate (since Agda evaluates all the functions in the type signature
-to normal form, to decide if a function type checks).
+that wouldn't have been a problem in Haskell. Termination checking can be disabled.
+However, for later defining a function for value conversion, we needed the code
+conversion functions in type signatures of that function, and all expressions
+in a signature must terminate.
 
-We instead chose to implement a conversion from Spine to Regular,
-since in Regular, recursion is modeled by an extra parameter. This
-allowed all functions to be terminating. In Regular one models the
-pattern functor, then applies the least fixed-point operator |μ| which
-results in a representation which is isomorphic to the represented
-type.
+We later chose to implement a conversion from Spine to Regular.
+Regular is similar to LIGD in its sum-of-products approach, but there is an extra parameter to every code for
+implicit representation of recursion. The extra parameter is filled on application of the least fixed-point operator |μ|.
+Using regular allowed the conversion functions we defined later, to terminate.
+
+\section{Spine to Regular}
+
+After running into the problems mentioned above, we decided to switch to Regular for our sum-of-products view.
 
 
 \section{Related work}
@@ -361,13 +364,20 @@ signature.
 \section{Conclusion}
 
 
-
     \begin{thebibliography}{9}
 
         \bibitem{loh}
             L{\"o}h, A. and Magalh{\~a}es, J.P.,
             \emph{Formally comparing approaches to datatype-generic programming, using Agda} (talk).
             2011.
+        \bibitem{source}
+            Marcelo Sousa, Justin Paston-Cooper, Paul van der Walt,
+            \emph{Project source code},
+            \url{https://github.com/toothbrush/agda-gp/tree/master/src},
+            2011.
     \end{thebibliography}
+
+
+
 
 \end{document}
