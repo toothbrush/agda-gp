@@ -195,6 +195,7 @@
 %format sigList       = "\id{sigList}"
 %format map-∘         = "\id{map\ensuremath{_{∘}}}"
 %format id            = "\id{id}"
+%format convert            = "\id{convert}"
 %format id⇉           = "\id{id\ensuremath{_⇉}}"
 %format L⟦_⟧           = "\id{L⟦\_⟧}"
 %format ⟦_⟧           = "\id{⟦\_⟧}"
