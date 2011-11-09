@@ -251,6 +251,13 @@ all Spine representations into Regular. We can, however, translate a subset of S
 
 \section{Conclusion}
 
+In summary, this project has resulted in an injective embedding of Spine into Regular. Functions for
+converting representations from one viewe to another have been provided, and a number of suggestions for future
+work have been done. While the functions aren't as generic as could be desired, the project has clearly
+demonstrated a concrete relationship between the Spine and Regular worlds. Most likely it would be worthwhile
+to do further research and possibly abstract away from the Spine universe and allow conversion of Regular
+representations into Spine representations. It should also be possible to formalise the given relationships
+using Agda's power as a proof assistant.
 
 
     \begin{thebibliography}{9}
