@@ -32,10 +32,10 @@ data Typed (a : Set) : Set where
 infixl 1 _:>_
 
 -- Decode Type in Set
-interpretSTRep : {a : Set} -> Type a -> Set
-interpretSTRep nat = ℕ
-interpretSTRep bool = Bool
-interpretSTRep (list a) = List $ interpretSTRep a
+decodeType : {a : Set} -> Type a -> Set
+decodeType nat = ℕ
+decodeType bool = Bool
+decodeType (list a) = List $ decodeType a
 
 -- Type Equality
 Type_≡Type_ : {A B : Set} -> Type A -> Type B -> Maybe (A ≡ B)
